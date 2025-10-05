@@ -221,8 +221,8 @@ enum ES_Command
     ES_C_SetTipAdapter = 137,                      
     ES_C_GetATRInfo = 138,
     ES_C_GetMeteoStationInfo = 139,
-    ES_C_GetATInfo = 140,                          
-    ES_C_GetAT4xxInfo = ES_C_GetATInfo,            
+    ES_C_GetATInfo = 140,                            
+    ES_C_GetAT4xxInfo = 140,        
     
     
     ES_C_GetSystemSoftwareVersion = 142,           
