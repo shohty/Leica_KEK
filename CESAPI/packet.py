@@ -683,3 +683,10201 @@ ES_PCT_NoTipAllowed = 1
 ES_PCT_OnlyWithShankCompensation = 2
 
 # enum ES_QuickReleaseStatus:
+ES_QRS_NotExisting = 999
+ES_QRS_Closed = 0
+ES_QRS_Open = 1
+
+# enum ES_PowerLockMode:
+ES_PLM_InDoor = 0
+ES_PLM_OutDoor = 1
+ES_PLM_OutDoor_LongRange = 2
+
+# enum ES_SystemParameter:
+ES_SP_KeepLastPositionFlag = 0
+ES_SP_WeatherMonitorSetting = 1
+ES_SP_ShowAll6DMeasurements = 2
+ES_SP_LaserPointerCaptureBeam = 3
+ES_SP_DisplayReflectorPosition = 10
+ES_SP_ProbeConfig_Button = 50
+ES_SP_ProbeConfig_ButtonEvent = 51
+ES_SP_ProbeConfig_Tip = 52
+ES_SP_ProbeConfig_SoundVolume = 53
+ES_SP_ProbeConfig_PowerOffTime = 54
+ES_SP_QuickReleaseStatus = 60
+ES_SP_TcpCommandQueueSize = 200
+ES_SP_SystemMax6DDataRate = 300
+ES_SP_TcpDataPacketRate = 400
+ES_SP_PowerLockFunctionAvailable = 410
+ES_SP_PowerLockFunctionActive = 411
+ES_SP_PowerLockMode = 450
+ES_SP_D_TemperatureThreshold = 1000
+ES_SP_D_PressureThreshold = 1001
+ES_SP_D_HumidityThreshold = 1002
+ES_SP_D_SystemLongest3DDistanceIFM = 1100
+ES_SP_D_SystemLongest3DDistanceADM = 1101
+ES_SP_D_SystemLongest6DDistance = 1102
+ES_SP_ControllerBatteryStatus = 5000
+ES_SP_AT4xxControllerBatteryStatus = 5000
+ES_SP_SensorBatteryStatus = 5001
+ES_SP_AT4xxSensorBatteryStatus = 5001
+ES_SP_InclinationSensorState = 5002
+ES_SP_AT4xxInclinationSensorState = 5002
+ES_SP_ReflectorTiltDetection = 5003
+ES_SP_AT4xxReflectorTiltDetection = 5003
+ES_SP_StableProbingTrigger = 5004
+ES_SP_TwoFaceAverageMode = 5005
+ES_SP_StableProbingCriteriaTime = 5006
+ES_SP_PowerOverrideSupported = 5010
+ES_SP_PowerOverrideEnabled = 5011
+ES_SP_InitializationQualityCheckMode = 5020
+ES_SP_D_StableProbingCriteriaRegion = 6000
+
+# enum ES_MeasurementStatusInfo:
+ES_MSI_Unknown = 0
+ES_MSI_TrackerFound = 1
+ES_MSI_TrackerCompensationFound = 2
+ES_MSI_ADMFound = 4
+ES_MSI_ADMCompensationFound = 8
+ES_MSI_MeasurementCameraFound = 16
+ES_MSI_InternalCameraParamsOK = 32
+ES_MSI_CameraToTrackerParamsFound = 64
+ES_MSI_MeasurementProbeFound = 128
+ES_MSI_ProbeParamsFound = 256
+ES_MSI_MeasurementTipFound = 512
+ES_MSI_TipParamsFound = 1024
+ES_MSI_ReflectorFound = 2048
+ES_MSI_InFace1 = 4096
+ES_MSI_ShankParamsFound = 8192
+ES_MSI_SensorBatteryMounted = 16384
+ES_MSI_NivelInWorkingRange = 32768
+ES_MSI_Initialized = 65536
+
+# enum ES_ClearCommandQueueType:
+ES_CCQ_ClearOwnOnly = 0
+ES_CCQ_ClearAll = 1
+
+# enum ES_OverviewCameraType:
+ES_OCT_Unknown = 0
+ES_OCT_Classic = 1
+ES_OCT_TCam_Integrated = 2
+ES_OCT_AT_Integrated = 20
+ES_OCT_AT4xx_Integrated = 20
+
+# enum ES_TriggerCardType:
+ES_TCT_None = 0
+ES_TCT_SingleTracker = 1
+
+# enum ES_ADMType:
+ES_AMT_Unknown = 0
+ES_AMT_LeicaADM = 1
+ES_AMT_LeicaAIFM = 2
+ES_AMT_LeicaADM2 = 3
+ES_AMT_LeicaADM3 = 4
+
+# enum ES_ATRType:
+ES_ATR_None = 0
+ES_ATR_4 = 1
+ES_ATR_5i = 2
+
+# enum ES_TrkAccuracyModel:
+ES_TAM_Unknown = 0
+ES_TAM_2005 = 1
+
+# enum ES_NivelType:
+ES_NT_Unknown = 0
+ES_NT_Nivel20 = 1
+ES_NT_Nivel230 = 2
+ES_NT_NivelAT = 3
+ES_NT_NivelAT4xx = 3
+
+# enum ES_TipToProbeCompensationType:
+ES_TCT_Unknown = 0
+ES_TCT_TipOnly = 1
+ES_TCT_ShankEnabled = 2
+
+# enum ES_MeteoStationType:
+ES_MST_None = 0
+ES_MST_Thommen = 1
+ES_MST_AT = 2
+
+# enum ES_WLANType:
+ES_WLAN_None = 0
+ES_WLAN_BGW211 = 1
+ES_WLAN_OWL221a = 2
+ES_WLAN_Morin = 3
+
+# enum ES_InclinationSensorState:
+ES_ISS_Off = 0
+ES_ISS_ApplyCorrections = 2
+
+# enum ES_InitializationQualityCheckMode:
+ES_IQM_OnlyGood = 0
+ES_IQM_Warning = 1
+
+class PacketHeaderT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 8
+    self.__sizes = [8]
+    self.__formats = [('<i I ')]
+    self.lPacketSize = int(0)
+    self.type = int(0)  # ES_DataType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lPacketSize = packet_elements[0]
+    self.type = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.lPacketSize,)
+    packet_elements += (self.type,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ReturnDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetHeader = PacketHeaderT()
+    self.status = int(0)  # ES_ResultStatus
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetHeader.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.status = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetHeader.pack()
+    packet_elements = ()
+    packet_elements += (self.status,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class BasicCommandCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetHeader = PacketHeaderT()
+    self.command = int(0)  # ES_Command
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetHeader.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.command = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetHeader.pack()
+    packet_elements = ()
+    packet_elements += (self.command,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class BasicCommandRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [8]
+    self.__formats = [('<I I ')]
+    self.packetHeader = PacketHeaderT()
+    self.command = int(0)  # ES_Command
+    self.status = int(0)  # ES_ResultStatus
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetHeader.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.command = packet_elements[0]
+    self.status = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetHeader.pack()
+    packet_elements = ()
+    packet_elements += (self.command,)
+    packet_elements += (self.status,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class RotationStatus(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 0
+    self.__sizes = [0]
+    self.__formats = [('<')]
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.Status6D = packet_elements[0]
+    self.Error6D = packet_elements[1]
+    self.NotEnoughLED = packet_elements[2]
+    self.RMSToHigh = packet_elements[3]
+    self.AngleOutOfRange = packet_elements[4]
+    self.Frozen6DValues = packet_elements[5]
+    self.DistanceOutOfRange = packet_elements[6]
+    self.Reserved1 = packet_elements[7]
+    self.RotStatLeftRight = packet_elements[8]
+    self.RotStatUpDown = packet_elements[9]
+    self.GoodGauge = packet_elements[10]
+    self.Face2 = packet_elements[11]
+    self.Reserved2 = packet_elements[12]
+    self.NumOfLedsUsedChanged = packet_elements[13]
+    self.NumOfLedsUsedInCalc = packet_elements[14]
+    self.Reserved3 = packet_elements[15]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.Status6D,)
+    packet_elements += (self.Error6D,)
+    packet_elements += (self.NotEnoughLED,)
+    packet_elements += (self.RMSToHigh,)
+    packet_elements += (self.AngleOutOfRange,)
+    packet_elements += (self.Frozen6DValues,)
+    packet_elements += (self.DistanceOutOfRange,)
+    packet_elements += (self.Reserved1,)
+    packet_elements += (self.RotStatLeftRight,)
+    packet_elements += (self.RotStatUpDown,)
+    packet_elements += (self.GoodGauge,)
+    packet_elements += (self.Face2,)
+    packet_elements += (self.Reserved2,)
+    packet_elements += (self.NumOfLedsUsedChanged,)
+    packet_elements += (self.NumOfLedsUsedInCalc,)
+    packet_elements += (self.Reserved3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+# Skipped object <class 'pycparser.c_ast.Union'>
+class NivelResultT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = [28]
+    self.__formats = [('<I d d d ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_NivelResult
+    self.nivelStatus = int(0)  # ES_NivelStatus
+    self.dXTilt = float(0)
+    self.dYTilt = float(0)
+    self.dNivelTemperature = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.nivelStatus = packet_elements[0]
+    self.dXTilt = packet_elements[1]
+    self.dYTilt = packet_elements[2]
+    self.dNivelTemperature = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.nivelStatus,)
+    packet_elements += (self.dXTilt,)
+    packet_elements += (self.dYTilt,)
+    packet_elements += (self.dNivelTemperature,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ReflectorPosResultT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [24]
+    self.__formats = [('<d d d ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_ReflectorPosResult
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ProbePosResultT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 108
+    self.__sizes = [96]
+    self.__formats = [('<i I i i d d d d d d d d d d ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ProbePosResul
+    self.lRotationStatus = int(0)
+    self.tipStatus = int(0)  # ES_MeasurementTipStatus
+    self.iInternalTipAdapterId = int(0)
+    self.iTipAdapterInterface = int(0)
+    self.dPosition1 = float(0)
+    self.dPosition2 = float(0)
+    self.dPosition3 = float(0)
+    self.dQuaternion0 = float(0)
+    self.dQuaternion1 = float(0)
+    self.dQuaternion2 = float(0)
+    self.dQuaternion3 = float(0)
+    self.dRotationAngleX = float(0)
+    self.dRotationAngleY = float(0)
+    self.dRotationAngleZ = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lRotationStatus = packet_elements[0]
+    self.tipStatus = packet_elements[1]
+    self.iInternalTipAdapterId = packet_elements[2]
+    self.iTipAdapterInterface = packet_elements[3]
+    self.dPosition1 = packet_elements[4]
+    self.dPosition2 = packet_elements[5]
+    self.dPosition3 = packet_elements[6]
+    self.dQuaternion0 = packet_elements[7]
+    self.dQuaternion1 = packet_elements[8]
+    self.dQuaternion2 = packet_elements[9]
+    self.dQuaternion3 = packet_elements[10]
+    self.dRotationAngleX = packet_elements[11]
+    self.dRotationAngleY = packet_elements[12]
+    self.dRotationAngleZ = packet_elements[13]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.lRotationStatus,)
+    packet_elements += (self.tipStatus,)
+    packet_elements += (self.iInternalTipAdapterId,)
+    packet_elements += (self.iTipAdapterInterface,)
+    packet_elements += (self.dPosition1,)
+    packet_elements += (self.dPosition2,)
+    packet_elements += (self.dPosition3,)
+    packet_elements += (self.dQuaternion0,)
+    packet_elements += (self.dQuaternion1,)
+    packet_elements += (self.dQuaternion2,)
+    packet_elements += (self.dQuaternion3,)
+    packet_elements += (self.dRotationAngleX,)
+    packet_elements += (self.dRotationAngleY,)
+    packet_elements += (self.dRotationAngleZ,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SingleMeasResultT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 156
+    self.__sizes = [144]
+    self.__formats = [('<I i d d d d d d d d d d d d d d d d d ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_SingleMeasResult
+    self.measMode = int(0)  # ES_MeasMode
+    self.bIsTryMode = int(0)
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dStd1 = float(0)
+    self.dStd2 = float(0)
+    self.dStd3 = float(0)
+    self.dStdTotal = float(0)
+    self.dPointingError1 = float(0)
+    self.dPointingError2 = float(0)
+    self.dPointingError3 = float(0)
+    self.dAprioriStd1 = float(0)
+    self.dAprioriStd2 = float(0)
+    self.dAprioriStd3 = float(0)
+    self.dAprioriStdTotal = float(0)
+    self.dTemperature = float(0)
+    self.dPressure = float(0)
+    self.dHumidity = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.measMode = packet_elements[0]
+    self.bIsTryMode = packet_elements[1]
+    self.dVal1 = packet_elements[2]
+    self.dVal2 = packet_elements[3]
+    self.dVal3 = packet_elements[4]
+    self.dStd1 = packet_elements[5]
+    self.dStd2 = packet_elements[6]
+    self.dStd3 = packet_elements[7]
+    self.dStdTotal = packet_elements[8]
+    self.dPointingError1 = packet_elements[9]
+    self.dPointingError2 = packet_elements[10]
+    self.dPointingError3 = packet_elements[11]
+    self.dAprioriStd1 = packet_elements[12]
+    self.dAprioriStd2 = packet_elements[13]
+    self.dAprioriStd3 = packet_elements[14]
+    self.dAprioriStdTotal = packet_elements[15]
+    self.dTemperature = packet_elements[16]
+    self.dPressure = packet_elements[17]
+    self.dHumidity = packet_elements[18]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.measMode,)
+    packet_elements += (self.bIsTryMode,)
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dStd1,)
+    packet_elements += (self.dStd2,)
+    packet_elements += (self.dStd3,)
+    packet_elements += (self.dStdTotal,)
+    packet_elements += (self.dPointingError1,)
+    packet_elements += (self.dPointingError2,)
+    packet_elements += (self.dPointingError3,)
+    packet_elements += (self.dAprioriStd1,)
+    packet_elements += (self.dAprioriStd2,)
+    packet_elements += (self.dAprioriStd3,)
+    packet_elements += (self.dAprioriStdTotal,)
+    packet_elements += (self.dTemperature,)
+    packet_elements += (self.dPressure,)
+    packet_elements += (self.dHumidity,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SingleMeasResult2T(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 204
+    self.__sizes = [192]
+    self.__formats = [('<I i d d d d d d d d d d d d d d d d d d d d d d d ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_SingleMeasResult2
+    self.measMode = int(0)  # ES_MeasMode
+    self.bIsTryMode = int(0)
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dStd1 = float(0)
+    self.dStd2 = float(0)
+    self.dStd3 = float(0)
+    self.dStdTotal = float(0)
+    self.dCovar12 = float(0)
+    self.dCovar13 = float(0)
+    self.dCovar23 = float(0)
+    self.dPointingErrorH = float(0)
+    self.dPointingErrorV = float(0)
+    self.dPointingErrorD = float(0)
+    self.dAprioriStd1 = float(0)
+    self.dAprioriStd2 = float(0)
+    self.dAprioriStd3 = float(0)
+    self.dAprioriStdTotal = float(0)
+    self.dAprioriCovar12 = float(0)
+    self.dAprioriCovar13 = float(0)
+    self.dAprioriCovar23 = float(0)
+    self.dTemperature = float(0)
+    self.dPressure = float(0)
+    self.dHumidity = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.measMode = packet_elements[0]
+    self.bIsTryMode = packet_elements[1]
+    self.dVal1 = packet_elements[2]
+    self.dVal2 = packet_elements[3]
+    self.dVal3 = packet_elements[4]
+    self.dStd1 = packet_elements[5]
+    self.dStd2 = packet_elements[6]
+    self.dStd3 = packet_elements[7]
+    self.dStdTotal = packet_elements[8]
+    self.dCovar12 = packet_elements[9]
+    self.dCovar13 = packet_elements[10]
+    self.dCovar23 = packet_elements[11]
+    self.dPointingErrorH = packet_elements[12]
+    self.dPointingErrorV = packet_elements[13]
+    self.dPointingErrorD = packet_elements[14]
+    self.dAprioriStd1 = packet_elements[15]
+    self.dAprioriStd2 = packet_elements[16]
+    self.dAprioriStd3 = packet_elements[17]
+    self.dAprioriStdTotal = packet_elements[18]
+    self.dAprioriCovar12 = packet_elements[19]
+    self.dAprioriCovar13 = packet_elements[20]
+    self.dAprioriCovar23 = packet_elements[21]
+    self.dTemperature = packet_elements[22]
+    self.dPressure = packet_elements[23]
+    self.dHumidity = packet_elements[24]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.measMode,)
+    packet_elements += (self.bIsTryMode,)
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dStd1,)
+    packet_elements += (self.dStd2,)
+    packet_elements += (self.dStd3,)
+    packet_elements += (self.dStdTotal,)
+    packet_elements += (self.dCovar12,)
+    packet_elements += (self.dCovar13,)
+    packet_elements += (self.dCovar23,)
+    packet_elements += (self.dPointingErrorH,)
+    packet_elements += (self.dPointingErrorV,)
+    packet_elements += (self.dPointingErrorD,)
+    packet_elements += (self.dAprioriStd1,)
+    packet_elements += (self.dAprioriStd2,)
+    packet_elements += (self.dAprioriStd3,)
+    packet_elements += (self.dAprioriStdTotal,)
+    packet_elements += (self.dAprioriCovar12,)
+    packet_elements += (self.dAprioriCovar13,)
+    packet_elements += (self.dAprioriCovar23,)
+    packet_elements += (self.dTemperature,)
+    packet_elements += (self.dPressure,)
+    packet_elements += (self.dHumidity,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class MeasValueT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [36]
+    self.__formats = [('<I i i d d d ')]
+    self.status = int(0)  # ES_MeasurementStatus
+    self.lTime1 = int(0)
+    self.lTime2 = int(0)
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.status = packet_elements[0]
+    self.lTime1 = packet_elements[1]
+    self.lTime2 = packet_elements[2]
+    self.dVal1 = packet_elements[3]
+    self.dVal2 = packet_elements[4]
+    self.dVal3 = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.status,)
+    packet_elements += (self.lTime1,)
+    packet_elements += (self.lTime2,)
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class MeasValue2T(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 92
+    self.__sizes = [92]
+    self.__formats = [('<I i i d d d d d d d d d d ')]
+    self.status = int(0)  # ES_MeasurementStatus
+    self.lTime1 = int(0)
+    self.lTime2 = int(0)
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dAprioriStd1 = float(0)
+    self.dAprioriStd2 = float(0)
+    self.dAprioriStd3 = float(0)
+    self.dAprioriStdTotal = float(0)
+    self.dAprioriCovar12 = float(0)
+    self.dAprioriCovar13 = float(0)
+    self.dAprioriCovar23 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.status = packet_elements[0]
+    self.lTime1 = packet_elements[1]
+    self.lTime2 = packet_elements[2]
+    self.dVal1 = packet_elements[3]
+    self.dVal2 = packet_elements[4]
+    self.dVal3 = packet_elements[5]
+    self.dAprioriStd1 = packet_elements[6]
+    self.dAprioriStd2 = packet_elements[7]
+    self.dAprioriStd3 = packet_elements[8]
+    self.dAprioriStdTotal = packet_elements[9]
+    self.dAprioriCovar12 = packet_elements[10]
+    self.dAprioriCovar13 = packet_elements[11]
+    self.dAprioriCovar23 = packet_elements[12]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.status,)
+    packet_elements += (self.lTime1,)
+    packet_elements += (self.lTime2,)
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dAprioriStd1,)
+    packet_elements += (self.dAprioriStd2,)
+    packet_elements += (self.dAprioriStd3,)
+    packet_elements += (self.dAprioriStdTotal,)
+    packet_elements += (self.dAprioriCovar12,)
+    packet_elements += (self.dAprioriCovar13,)
+    packet_elements += (self.dAprioriCovar23,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class MultiMeasResultT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 50
+    self.__sizes = [38]
+    self.__formats = [('<i I i d d d 2s ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_MultiMeasResul
+    self.lNumberOfResults = int(0)
+    self.measMode = int(0)  # ES_MeasMode
+    self.bIsTryMode = int(0)
+    self.dTemperature = float(0)
+    self.dPressure = float(0)
+    self.dHumidity = float(0)
+    self.data = b''  # 2 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lNumberOfResults = packet_elements[0]
+    self.measMode = packet_elements[1]
+    self.bIsTryMode = packet_elements[2]
+    self.dTemperature = packet_elements[3]
+    self.dPressure = packet_elements[4]
+    self.dHumidity = packet_elements[5]
+    self.data = packet_elements[6]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.lNumberOfResults,)
+    packet_elements += (self.measMode,)
+    packet_elements += (self.bIsTryMode,)
+    packet_elements += (self.dTemperature,)
+    packet_elements += (self.dPressure,)
+    packet_elements += (self.dHumidity,)
+    packet_elements += (self.data,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class MultiMeasResult2T(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 50
+    self.__sizes = [38]
+    self.__formats = [('<i I i d d d 2s ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_MultiMeasResult
+    self.lNumberOfResults = int(0)
+    self.measMode = int(0)  # ES_MeasMode
+    self.bIsTryMode = int(0)
+    self.dTemperature = float(0)
+    self.dPressure = float(0)
+    self.dHumidity = float(0)
+    self.data = b''  # 2 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lNumberOfResults = packet_elements[0]
+    self.measMode = packet_elements[1]
+    self.bIsTryMode = packet_elements[2]
+    self.dTemperature = packet_elements[3]
+    self.dPressure = packet_elements[4]
+    self.dHumidity = packet_elements[5]
+    self.data = packet_elements[6]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.lNumberOfResults,)
+    packet_elements += (self.measMode,)
+    packet_elements += (self.bIsTryMode,)
+    packet_elements += (self.dTemperature,)
+    packet_elements += (self.dPressure,)
+    packet_elements += (self.dHumidity,)
+    packet_elements += (self.data,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ProbeStationaryResultT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 376
+    self.__sizes = [364]
+    self.__formats = [('<I i I i i i I i i d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ProbeStationaryResul
+    self.measMode = int(0)  # ES_MeasMode
+    self.bIsTryMode = int(0)
+    self.triggerStatus = int(0)  # ES_TriggerStatus
+    self.lRotationStatus = int(0)
+    self.iInternalProbeId = int(0)
+    self.iFieldNumber = int(0)
+    self.tipStatus = int(0)  # ES_MeasurementTipStatus
+    self.iInternalTipAdapterId = int(0)
+    self.iTipAdapterInterface = int(0)
+    self.dPosition1 = float(0)
+    self.dPosition2 = float(0)
+    self.dPosition3 = float(0)
+    self.dStdDevPosition1 = float(0)
+    self.dStdDevPosition2 = float(0)
+    self.dStdDevPosition3 = float(0)
+    self.dStdDevPositionTotal = float(0)
+    self.dCovarPosition12 = float(0)
+    self.dCovarPosition13 = float(0)
+    self.dCovarPosition23 = float(0)
+    self.dAprioriStdDevPosition1 = float(0)
+    self.dAprioriStdDevPosition2 = float(0)
+    self.dAprioriStdDevPosition3 = float(0)
+    self.dAprioriStdDevPositionTotal = float(0)
+    self.dAprioriCovarPosition12 = float(0)
+    self.dAprioriCovarPosition13 = float(0)
+    self.dAprioriCovarPosition23 = float(0)
+    self.dQuaternion0 = float(0)
+    self.dQuaternion1 = float(0)
+    self.dQuaternion2 = float(0)
+    self.dQuaternion3 = float(0)
+    self.dRotationAngleX = float(0)
+    self.dRotationAngleY = float(0)
+    self.dRotationAngleZ = float(0)
+    self.dStdDevRotationAngleX = float(0)
+    self.dStdDevRotationAngleY = float(0)
+    self.dStdDevRotationAngleZ = float(0)
+    self.dStdDevRotationAngleTotal = float(0)
+    self.dCovarRotationAngleXY = float(0)
+    self.dCovarRotationAngleXZ = float(0)
+    self.dCovarRotationAngleYZ = float(0)
+    self.dAprioriStdDevRotationAngleX = float(0)
+    self.dAprioriStdDevRotationAngleY = float(0)
+    self.dAprioriStdDevRotationAngleZ = float(0)
+    self.dAprioriStdDevRotationAngleTotal = float(0)
+    self.dAprioriCovarRotationAngleXY = float(0)
+    self.dAprioriCovarRotationAngleXZ = float(0)
+    self.dAprioriCovarRotationAngleYZ = float(0)
+    self.dTemperature = float(0)
+    self.dPressure = float(0)
+    self.dHumidity = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.measMode = packet_elements[0]
+    self.bIsTryMode = packet_elements[1]
+    self.triggerStatus = packet_elements[2]
+    self.lRotationStatus = packet_elements[3]
+    self.iInternalProbeId = packet_elements[4]
+    self.iFieldNumber = packet_elements[5]
+    self.tipStatus = packet_elements[6]
+    self.iInternalTipAdapterId = packet_elements[7]
+    self.iTipAdapterInterface = packet_elements[8]
+    self.dPosition1 = packet_elements[9]
+    self.dPosition2 = packet_elements[10]
+    self.dPosition3 = packet_elements[11]
+    self.dStdDevPosition1 = packet_elements[12]
+    self.dStdDevPosition2 = packet_elements[13]
+    self.dStdDevPosition3 = packet_elements[14]
+    self.dStdDevPositionTotal = packet_elements[15]
+    self.dCovarPosition12 = packet_elements[16]
+    self.dCovarPosition13 = packet_elements[17]
+    self.dCovarPosition23 = packet_elements[18]
+    self.dAprioriStdDevPosition1 = packet_elements[19]
+    self.dAprioriStdDevPosition2 = packet_elements[20]
+    self.dAprioriStdDevPosition3 = packet_elements[21]
+    self.dAprioriStdDevPositionTotal = packet_elements[22]
+    self.dAprioriCovarPosition12 = packet_elements[23]
+    self.dAprioriCovarPosition13 = packet_elements[24]
+    self.dAprioriCovarPosition23 = packet_elements[25]
+    self.dQuaternion0 = packet_elements[26]
+    self.dQuaternion1 = packet_elements[27]
+    self.dQuaternion2 = packet_elements[28]
+    self.dQuaternion3 = packet_elements[29]
+    self.dRotationAngleX = packet_elements[30]
+    self.dRotationAngleY = packet_elements[31]
+    self.dRotationAngleZ = packet_elements[32]
+    self.dStdDevRotationAngleX = packet_elements[33]
+    self.dStdDevRotationAngleY = packet_elements[34]
+    self.dStdDevRotationAngleZ = packet_elements[35]
+    self.dStdDevRotationAngleTotal = packet_elements[36]
+    self.dCovarRotationAngleXY = packet_elements[37]
+    self.dCovarRotationAngleXZ = packet_elements[38]
+    self.dCovarRotationAngleYZ = packet_elements[39]
+    self.dAprioriStdDevRotationAngleX = packet_elements[40]
+    self.dAprioriStdDevRotationAngleY = packet_elements[41]
+    self.dAprioriStdDevRotationAngleZ = packet_elements[42]
+    self.dAprioriStdDevRotationAngleTotal = packet_elements[43]
+    self.dAprioriCovarRotationAngleXY = packet_elements[44]
+    self.dAprioriCovarRotationAngleXZ = packet_elements[45]
+    self.dAprioriCovarRotationAngleYZ = packet_elements[46]
+    self.dTemperature = packet_elements[47]
+    self.dPressure = packet_elements[48]
+    self.dHumidity = packet_elements[49]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.measMode,)
+    packet_elements += (self.bIsTryMode,)
+    packet_elements += (self.triggerStatus,)
+    packet_elements += (self.lRotationStatus,)
+    packet_elements += (self.iInternalProbeId,)
+    packet_elements += (self.iFieldNumber,)
+    packet_elements += (self.tipStatus,)
+    packet_elements += (self.iInternalTipAdapterId,)
+    packet_elements += (self.iTipAdapterInterface,)
+    packet_elements += (self.dPosition1,)
+    packet_elements += (self.dPosition2,)
+    packet_elements += (self.dPosition3,)
+    packet_elements += (self.dStdDevPosition1,)
+    packet_elements += (self.dStdDevPosition2,)
+    packet_elements += (self.dStdDevPosition3,)
+    packet_elements += (self.dStdDevPositionTotal,)
+    packet_elements += (self.dCovarPosition12,)
+    packet_elements += (self.dCovarPosition13,)
+    packet_elements += (self.dCovarPosition23,)
+    packet_elements += (self.dAprioriStdDevPosition1,)
+    packet_elements += (self.dAprioriStdDevPosition2,)
+    packet_elements += (self.dAprioriStdDevPosition3,)
+    packet_elements += (self.dAprioriStdDevPositionTotal,)
+    packet_elements += (self.dAprioriCovarPosition12,)
+    packet_elements += (self.dAprioriCovarPosition13,)
+    packet_elements += (self.dAprioriCovarPosition23,)
+    packet_elements += (self.dQuaternion0,)
+    packet_elements += (self.dQuaternion1,)
+    packet_elements += (self.dQuaternion2,)
+    packet_elements += (self.dQuaternion3,)
+    packet_elements += (self.dRotationAngleX,)
+    packet_elements += (self.dRotationAngleY,)
+    packet_elements += (self.dRotationAngleZ,)
+    packet_elements += (self.dStdDevRotationAngleX,)
+    packet_elements += (self.dStdDevRotationAngleY,)
+    packet_elements += (self.dStdDevRotationAngleZ,)
+    packet_elements += (self.dStdDevRotationAngleTotal,)
+    packet_elements += (self.dCovarRotationAngleXY,)
+    packet_elements += (self.dCovarRotationAngleXZ,)
+    packet_elements += (self.dCovarRotationAngleYZ,)
+    packet_elements += (self.dAprioriStdDevRotationAngleX,)
+    packet_elements += (self.dAprioriStdDevRotationAngleY,)
+    packet_elements += (self.dAprioriStdDevRotationAngleZ,)
+    packet_elements += (self.dAprioriStdDevRotationAngleTotal,)
+    packet_elements += (self.dAprioriCovarRotationAngleXY,)
+    packet_elements += (self.dAprioriCovarRotationAngleXZ,)
+    packet_elements += (self.dAprioriCovarRotationAngleYZ,)
+    packet_elements += (self.dTemperature,)
+    packet_elements += (self.dPressure,)
+    packet_elements += (self.dHumidity,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ProbeMeasValueT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 212
+    self.__sizes = [212]
+    self.__formats = [('<I I i i i d d d d d d d d d d d d d d d d d d d d d d d d ')]
+    self.status = int(0)  # ES_MeasurementStatus
+    self.triggerStatus = int(0)  # ES_TriggerStatus
+    self.lRotationStatus = int(0)
+    self.lTime1 = int(0)
+    self.lTime2 = int(0)
+    self.dPosition1 = float(0)
+    self.dPosition2 = float(0)
+    self.dPosition3 = float(0)
+    self.dStdDevPosition1 = float(0)
+    self.dStdDevPosition2 = float(0)
+    self.dStdDevPosition3 = float(0)
+    self.dStdDevPositionTotal = float(0)
+    self.dCovarPosition12 = float(0)
+    self.dCovarPosition13 = float(0)
+    self.dCovarPosition23 = float(0)
+    self.dQuaternion0 = float(0)
+    self.dQuaternion1 = float(0)
+    self.dQuaternion2 = float(0)
+    self.dQuaternion3 = float(0)
+    self.dRotationAngleX = float(0)
+    self.dRotationAngleY = float(0)
+    self.dRotationAngleZ = float(0)
+    self.dStdDevRotationAngleX = float(0)
+    self.dStdDevRotationAngleY = float(0)
+    self.dStdDevRotationAngleZ = float(0)
+    self.dStdDevRotationAngleTotal = float(0)
+    self.dCovarRotationAngleXY = float(0)
+    self.dCovarRotationAngleXZ = float(0)
+    self.dCovarRotationAngleYZ = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.status = packet_elements[0]
+    self.triggerStatus = packet_elements[1]
+    self.lRotationStatus = packet_elements[2]
+    self.lTime1 = packet_elements[3]
+    self.lTime2 = packet_elements[4]
+    self.dPosition1 = packet_elements[5]
+    self.dPosition2 = packet_elements[6]
+    self.dPosition3 = packet_elements[7]
+    self.dStdDevPosition1 = packet_elements[8]
+    self.dStdDevPosition2 = packet_elements[9]
+    self.dStdDevPosition3 = packet_elements[10]
+    self.dStdDevPositionTotal = packet_elements[11]
+    self.dCovarPosition12 = packet_elements[12]
+    self.dCovarPosition13 = packet_elements[13]
+    self.dCovarPosition23 = packet_elements[14]
+    self.dQuaternion0 = packet_elements[15]
+    self.dQuaternion1 = packet_elements[16]
+    self.dQuaternion2 = packet_elements[17]
+    self.dQuaternion3 = packet_elements[18]
+    self.dRotationAngleX = packet_elements[19]
+    self.dRotationAngleY = packet_elements[20]
+    self.dRotationAngleZ = packet_elements[21]
+    self.dStdDevRotationAngleX = packet_elements[22]
+    self.dStdDevRotationAngleY = packet_elements[23]
+    self.dStdDevRotationAngleZ = packet_elements[24]
+    self.dStdDevRotationAngleTotal = packet_elements[25]
+    self.dCovarRotationAngleXY = packet_elements[26]
+    self.dCovarRotationAngleXZ = packet_elements[27]
+    self.dCovarRotationAngleYZ = packet_elements[28]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.status,)
+    packet_elements += (self.triggerStatus,)
+    packet_elements += (self.lRotationStatus,)
+    packet_elements += (self.lTime1,)
+    packet_elements += (self.lTime2,)
+    packet_elements += (self.dPosition1,)
+    packet_elements += (self.dPosition2,)
+    packet_elements += (self.dPosition3,)
+    packet_elements += (self.dStdDevPosition1,)
+    packet_elements += (self.dStdDevPosition2,)
+    packet_elements += (self.dStdDevPosition3,)
+    packet_elements += (self.dStdDevPositionTotal,)
+    packet_elements += (self.dCovarPosition12,)
+    packet_elements += (self.dCovarPosition13,)
+    packet_elements += (self.dCovarPosition23,)
+    packet_elements += (self.dQuaternion0,)
+    packet_elements += (self.dQuaternion1,)
+    packet_elements += (self.dQuaternion2,)
+    packet_elements += (self.dQuaternion3,)
+    packet_elements += (self.dRotationAngleX,)
+    packet_elements += (self.dRotationAngleY,)
+    packet_elements += (self.dRotationAngleZ,)
+    packet_elements += (self.dStdDevRotationAngleX,)
+    packet_elements += (self.dStdDevRotationAngleY,)
+    packet_elements += (self.dStdDevRotationAngleZ,)
+    packet_elements += (self.dStdDevRotationAngleTotal,)
+    packet_elements += (self.dCovarRotationAngleXY,)
+    packet_elements += (self.dCovarRotationAngleXZ,)
+    packet_elements += (self.dCovarRotationAngleYZ,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ProbeContinuousResultT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 70
+    self.__sizes = [58]
+    self.__formats = [('<i I i i i I i i d d d 2s ')]
+    self.packetInfo = ReturnDataT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ProbeContinuousResul
+    self.lNumberOfResults = int(0)
+    self.measMode = int(0)  # ES_MeasMode
+    self.bIsTryMode = int(0)
+    self.iInternalProbeId = int(0)
+    self.iFieldNumber = int(0)
+    self.tipStatus = int(0)  # ES_MeasurementTipStatus
+    self.iInternalTipAdapterId = int(0)
+    self.iTipAdapterInterface = int(0)
+    self.dTemperature = float(0)
+    self.dPressure = float(0)
+    self.dHumidity = float(0)
+    self.data = b''  # 2 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lNumberOfResults = packet_elements[0]
+    self.measMode = packet_elements[1]
+    self.bIsTryMode = packet_elements[2]
+    self.iInternalProbeId = packet_elements[3]
+    self.iFieldNumber = packet_elements[4]
+    self.tipStatus = packet_elements[5]
+    self.iInternalTipAdapterId = packet_elements[6]
+    self.iTipAdapterInterface = packet_elements[7]
+    self.dTemperature = packet_elements[8]
+    self.dPressure = packet_elements[9]
+    self.dHumidity = packet_elements[10]
+    self.data = packet_elements[11]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.lNumberOfResults,)
+    packet_elements += (self.measMode,)
+    packet_elements += (self.bIsTryMode,)
+    packet_elements += (self.iInternalProbeId,)
+    packet_elements += (self.iFieldNumber,)
+    packet_elements += (self.tipStatus,)
+    packet_elements += (self.iInternalTipAdapterId,)
+    packet_elements += (self.iTipAdapterInterface,)
+    packet_elements += (self.dTemperature,)
+    packet_elements += (self.dPressure,)
+    packet_elements += (self.dHumidity,)
+    packet_elements += (self.data,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SystemStatusChangeT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetHeader = PacketHeaderT()
+    self.packetHeader.lPacketSize = self.__packet_size
+    self.packetHeader.type = ES_DT_SystemStatusChange
+    self.systemStatusChange = int(0)  # ES_SystemStatusChange
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetHeader.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.systemStatusChange = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetHeader.pack()
+    packet_elements = ()
+    packet_elements += (self.systemStatusChange,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ErrorResponseT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [8]
+    self.__formats = [('<I I ')]
+    self.packetHeader = PacketHeaderT()
+    self.packetHeader.lPacketSize = self.__packet_size
+    self.packetHeader.type = ES_DT_Error
+    self.command = int(0)  # ES_Command
+    self.status = int(0)  # ES_ResultStatus
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetHeader.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.command = packet_elements[0]
+    self.status = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetHeader.pack()
+    packet_elements = ()
+    packet_elements += (self.command,)
+    packet_elements += (self.status,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class InitializeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_Initialize
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class InitializeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_Initialize
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ReleaseMotorsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ReleaseMotors
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ReleaseMotorsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ReleaseMotors
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ActivateCameraViewCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ActivateCameraView
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ActivateCameraViewRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ActivateCameraView
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ParkCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_Park
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ParkRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_Park
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GoBirdBathCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoBirdBath
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GoBirdBathRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoBirdBath
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GoBirdBath2CT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoBirdBath2
+    self.bClockWise = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.bClockWise = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.bClockWise,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GoBirdBath2RT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoBirdBath2
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ChangeFaceCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ChangeFace
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ChangeFaceRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ChangeFace
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class StartNivelMeasurementCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_StartNivelMeasurement
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class StartNivelMeasurementRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_StartNivelMeasurement
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class StartMeasurementCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_StartMeasurement
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class StartMeasurementRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_StartMeasurement
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class StopMeasurementCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_StopMeasurement
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class StopMeasurementRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_StopMeasurement
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ExitApplicationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ExitApplication
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ExitApplicationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ExitApplication
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GoLastMeasuredPointCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoLastMeasuredPoint
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GoLastMeasuredPointRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoLastMeasuredPoint
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class SwitchLaserCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SwitchLaser
+    self.bIsOn = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.bIsOn = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.bIsOn,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SwitchLaserRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SwitchLaser
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class FindReflectorCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [8]
+    self.__formats = [('<d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_FindReflector
+    self.dAproxDistance = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dAproxDistance = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dAproxDistance,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class FindReflectorRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_FindReflector
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class SetCoordinateSystemTypeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCoordinateSystemType
+    self.coordSysType = int(0)  # ES_CoordinateSystemType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.coordSysType = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.coordSysType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetCoordinateSystemTypeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCoordinateSystemType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCoordinateSystemTypeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCoordinateSystemType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCoordinateSystemTypeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCoordinateSystemType
+    self.coordSysType = int(0)  # ES_CoordinateSystemType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.coordSysType = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.coordSysType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTemperatureRangeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTemperatureRange
+    self.temperatureRange = int(0)  # ES_TrackerTemperatureRange
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.temperatureRange = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.temperatureRange,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTemperatureRangeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTemperatureRange
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTemperatureRangeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTemperatureRange
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTemperatureRangeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTemperatureRange
+    self.temperatureRange = int(0)  # ES_TrackerTemperatureRange
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.temperatureRange = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.temperatureRange,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetMeasurementModeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetMeasurementMode
+    self.measMode = int(0)  # ES_MeasMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.measMode = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.measMode,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetMeasurementModeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetMeasurementMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeasurementModeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeasurementModeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementMode
+    self.measMode = int(0)  # ES_MeasMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.measMode = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.measMode,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SearchParamsDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = [12]
+    self.__formats = [('<d i ')]
+    self.dSearchRadius = float(0)
+    self.lTimeOut = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dSearchRadius = packet_elements[0]
+    self.lTimeOut = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dSearchRadius,)
+    packet_elements += (self.lTimeOut,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetSearchParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSearchParams
+    self.searchParams = SearchParamsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.searchParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.searchParams.pack()
+    return self.packet
+
+class SetSearchParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSearchParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSearchParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSearchParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSearchParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSearchParams
+    self.searchParams = SearchParamsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.searchParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.searchParams.pack()
+    return self.packet
+
+class AdmParamsDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [16]
+    self.__formats = [('<d i i ')]
+    self.dTargetStabilityTolerance = float(0)
+    self.lRetryTimeFrame = int(0)
+    self.lNumberOfRetrys = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dTargetStabilityTolerance = packet_elements[0]
+    self.lRetryTimeFrame = packet_elements[1]
+    self.lNumberOfRetrys = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dTargetStabilityTolerance,)
+    packet_elements += (self.lRetryTimeFrame,)
+    packet_elements += (self.lNumberOfRetrys,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetAdmParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetAdmParams
+    self.admParams = AdmParamsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.admParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.admParams.pack()
+    return self.packet
+
+class SetAdmParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetAdmParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetAdmParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetAdmParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetAdmParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetAdmParams
+    self.admParams = AdmParamsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.admParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.admParams.pack()
+    return self.packet
+
+class StationaryModeDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 8
+    self.__sizes = [8]
+    self.__formats = [('<i i ')]
+    self.lMeasTime = int(0)
+    self.bUseADM = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lMeasTime = packet_elements[0]
+    self.bUseADM = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.lMeasTime,)
+    packet_elements += (self.bUseADM,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetStationaryModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetStationaryModeParams
+    self.stationaryModeData = StationaryModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.stationaryModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.stationaryModeData.pack()
+    return self.packet
+
+class SetStationaryModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetStationaryModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetStationaryModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStationaryModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetStationaryModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStationaryModeParams
+    self.stationaryModeData = StationaryModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.stationaryModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.stationaryModeData.pack()
+    return self.packet
+
+class ContinuousTimeModeDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [16]
+    self.__formats = [('<i i i I ')]
+    self.lTimeSeparation = int(0)
+    self.lNumberOfPoints = int(0)
+    self.bUseRegion = int(0)
+    self.regionType = int(0)  # ES_RegionType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lTimeSeparation = packet_elements[0]
+    self.lNumberOfPoints = packet_elements[1]
+    self.bUseRegion = packet_elements[2]
+    self.regionType = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.lTimeSeparation,)
+    packet_elements += (self.lNumberOfPoints,)
+    packet_elements += (self.bUseRegion,)
+    packet_elements += (self.regionType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetContinuousTimeModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetContinuousTimeModeParams
+    self.continuousTimeModeData = ContinuousTimeModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.continuousTimeModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.continuousTimeModeData.pack()
+    return self.packet
+
+class SetContinuousTimeModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetContinuousTimeModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetContinuousTimeModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetContinuousTimeModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetContinuousTimeModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetContinuousTimeModeParams
+    self.continuousTimeModeData = ContinuousTimeModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.continuousTimeModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.continuousTimeModeData.pack()
+    return self.packet
+
+class ContinuousDistanceModeDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [20]
+    self.__formats = [('<d i i I ')]
+    self.dSpatialDistance = float(0)
+    self.lNumberOfPoints = int(0)
+    self.bUseRegion = int(0)
+    self.regionType = int(0)  # ES_RegionType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dSpatialDistance = packet_elements[0]
+    self.lNumberOfPoints = packet_elements[1]
+    self.bUseRegion = packet_elements[2]
+    self.regionType = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dSpatialDistance,)
+    packet_elements += (self.lNumberOfPoints,)
+    packet_elements += (self.bUseRegion,)
+    packet_elements += (self.regionType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetContinuousDistanceModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetContinuousDistanceModeParams
+    self.continuousDistanceModeData = ContinuousDistanceModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.continuousDistanceModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.continuousDistanceModeData.pack()
+    return self.packet
+
+class SetContinuousDistanceModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetContinuousDistanceModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetContinuousDistanceModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetContinuousDistanceModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetContinuousDistanceModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetContinuousDistanceModeParams
+    self.continuousDistanceModeData = ContinuousDistanceModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.continuousDistanceModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.continuousDistanceModeData.pack()
+    return self.packet
+
+class SphereCenterModeDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [24]
+    self.__formats = [('<d i i d ')]
+    self.dSpatialDistance = float(0)
+    self.lNumberOfPoints = int(0)
+    self.bFixRadius = int(0)
+    self.dRadius = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dSpatialDistance = packet_elements[0]
+    self.lNumberOfPoints = packet_elements[1]
+    self.bFixRadius = packet_elements[2]
+    self.dRadius = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dSpatialDistance,)
+    packet_elements += (self.lNumberOfPoints,)
+    packet_elements += (self.bFixRadius,)
+    packet_elements += (self.dRadius,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetSphereCenterModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSphereCenterModeParams
+    self.sphereCenterModeData = SphereCenterModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.sphereCenterModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.sphereCenterModeData.pack()
+    return self.packet
+
+class SetSphereCenterModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSphereCenterModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSphereCenterModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSphereCenterModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSphereCenterModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSphereCenterModeParams
+    self.sphereCenterModeData = SphereCenterModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.sphereCenterModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.sphereCenterModeData.pack()
+    return self.packet
+
+class CircleCenterModeDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [24]
+    self.__formats = [('<d i i d ')]
+    self.dSpatialDistance = float(0)
+    self.lNumberOfPoints = int(0)
+    self.bFixRadius = int(0)
+    self.dRadius = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dSpatialDistance = packet_elements[0]
+    self.lNumberOfPoints = packet_elements[1]
+    self.bFixRadius = packet_elements[2]
+    self.dRadius = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dSpatialDistance,)
+    packet_elements += (self.lNumberOfPoints,)
+    packet_elements += (self.bFixRadius,)
+    packet_elements += (self.dRadius,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetCircleCenterModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCircleCenterModeParams
+    self.circleCenterModeData = CircleCenterModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.circleCenterModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.circleCenterModeData.pack()
+    return self.packet
+
+class SetCircleCenterModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCircleCenterModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCircleCenterModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCircleCenterModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCircleCenterModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCircleCenterModeParams
+    self.circleCenterModeData = CircleCenterModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.circleCenterModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.circleCenterModeData.pack()
+    return self.packet
+
+class GridModeDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [36]
+    self.__formats = [('<d d d i i I ')]
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.lNumberOfPoints = int(0)
+    self.bUseRegion = int(0)
+    self.regionType = int(0)  # ES_RegionType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    self.lNumberOfPoints = packet_elements[3]
+    self.bUseRegion = packet_elements[4]
+    self.regionType = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.lNumberOfPoints,)
+    packet_elements += (self.bUseRegion,)
+    packet_elements += (self.regionType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetGridModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 48
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetGridModeParams
+    self.gridModeData = GridModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.gridModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.gridModeData.pack()
+    return self.packet
+
+class SetGridModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetGridModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetGridModeParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetGridModeParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetGridModeParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 52
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetGridModeParams
+    self.gridModeData = GridModeDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.gridModeData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.gridModeData.pack()
+    return self.packet
+
+class SystemSettingsDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [36]
+    self.__formats = [('<I i i i i i i i i ')]
+    self.weatherMonitorStatus = int(0)  # ES_WeatherMonitorStatus
+    self.bApplyTransformationParams = int(0)
+    self.bApplyStationOrientationParams = int(0)
+    self.bKeepLastPosition = int(0)
+    self.bSendUnsolicitedMessages = int(0)
+    self.bSendReflectorPositionData = int(0)
+    self.bTryMeasurementMode = int(0)
+    self.bHasNivel = int(0)
+    self.bHasVideoCamera = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.weatherMonitorStatus = packet_elements[0]
+    self.bApplyTransformationParams = packet_elements[1]
+    self.bApplyStationOrientationParams = packet_elements[2]
+    self.bKeepLastPosition = packet_elements[3]
+    self.bSendUnsolicitedMessages = packet_elements[4]
+    self.bSendReflectorPositionData = packet_elements[5]
+    self.bTryMeasurementMode = packet_elements[6]
+    self.bHasNivel = packet_elements[7]
+    self.bHasVideoCamera = packet_elements[8]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.weatherMonitorStatus,)
+    packet_elements += (self.bApplyTransformationParams,)
+    packet_elements += (self.bApplyStationOrientationParams,)
+    packet_elements += (self.bKeepLastPosition,)
+    packet_elements += (self.bSendUnsolicitedMessages,)
+    packet_elements += (self.bSendReflectorPositionData,)
+    packet_elements += (self.bTryMeasurementMode,)
+    packet_elements += (self.bHasNivel,)
+    packet_elements += (self.bHasVideoCamera,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetSystemSettingsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 48
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSystemSettings
+    self.systemSettings = SystemSettingsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.systemSettings.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.systemSettings.pack()
+    return self.packet
+
+class SetSystemSettingsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSystemSettings
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSystemSettingsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSystemSettings
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSystemSettingsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 52
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSystemSettings
+    self.systemSettings = SystemSettingsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.systemSettings.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.systemSettings.pack()
+    return self.packet
+
+class SystemUnitsDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [20]
+    self.__formats = [('<I I I I I ')]
+    self.lenUnitType = int(0)  # ES_LengthUnit
+    self.angUnitType = int(0)  # ES_AngleUnit
+    self.tempUnitType = int(0)  # ES_TemperatureUnit
+    self.pressUnitType = int(0)  # ES_PressureUnit
+    self.humUnitType = int(0)  # ES_HumidityUnit
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lenUnitType = packet_elements[0]
+    self.angUnitType = packet_elements[1]
+    self.tempUnitType = packet_elements[2]
+    self.pressUnitType = packet_elements[3]
+    self.humUnitType = packet_elements[4]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.lenUnitType,)
+    packet_elements += (self.angUnitType,)
+    packet_elements += (self.tempUnitType,)
+    packet_elements += (self.pressUnitType,)
+    packet_elements += (self.humUnitType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetUnitsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetUnits
+    self.unitsSettings = SystemUnitsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.unitsSettings.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.unitsSettings.pack()
+    return self.packet
+
+class SetUnitsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetUnits
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetUnitsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetUnits
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetUnitsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetUnits
+    self.unitsSettings = SystemUnitsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.unitsSettings.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.unitsSettings.pack()
+    return self.packet
+
+class ESVersionNumberT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = [12]
+    self.__formats = [('<i i i ')]
+    self.iMajorVersionNumber = int(0)
+    self.iMinorVersionNumber = int(0)
+    self.iBuildNumber = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iMajorVersionNumber = packet_elements[0]
+    self.iMinorVersionNumber = packet_elements[1]
+    self.iBuildNumber = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.iMajorVersionNumber,)
+    packet_elements += (self.iMinorVersionNumber,)
+    packet_elements += (self.iBuildNumber,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetSystemStatusCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSystemStatus
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSystemStatusRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 56
+    self.__sizes = [16,12]
+    self.__formats = [('<I I I I '),('<I i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSystemStatus
+    self.lastResultStatus = int(0)  # ES_ResultStatus
+    self.trackerProcessorStatus = int(0)  # ES_TrackerProcessorStatus
+    self.laserStatus = int(0)  # ES_LaserProcessorStatus
+    self.admStatus = int(0)  # ES_ADMStatus
+    self.esVersionNumber = ESVersionNumberT()
+    self.weatherMonitorStatus = int(0)  # ES_WeatherMonitorStatus
+    self.lFlagsValue = int(0)
+    self.lTrackerSerialNumber = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lastResultStatus = packet_elements[0]
+    self.trackerProcessorStatus = packet_elements[1]
+    self.laserStatus = packet_elements[2]
+    self.admStatus = packet_elements[3]
+    packet = self.esVersionNumber.unpack(packet[self.__sizes[0]:])
+    packet_elements = struct.Struct(self.__formats[1]).unpack(packet[:self.__sizes[1]])
+    self.weatherMonitorStatus = packet_elements[0]
+    self.lFlagsValue = packet_elements[1]
+    self.lTrackerSerialNumber = packet_elements[2]
+    return packet[self.__sizes[1]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.lastResultStatus,)
+    packet_elements += (self.trackerProcessorStatus,)
+    packet_elements += (self.laserStatus,)
+    packet_elements += (self.admStatus,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    self.packet += self.esVersionNumber.pack()
+    packet_elements = ()
+    packet_elements += (self.weatherMonitorStatus,)
+    packet_elements += (self.lFlagsValue,)
+    packet_elements += (self.lTrackerSerialNumber,)
+    self.packet += struct.Struct(self.__formats[1]).pack(*packet_elements)
+    return self.packet
+
+class GetMeasurementStatusInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementStatusInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeasurementStatusInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<I i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementStatusInfo
+    self.lastResultStatus = int(0)  # ES_ResultStatus
+    self.lMeasurementStatusInfo = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.lastResultStatus = packet_elements[0]
+    self.lMeasurementStatusInfo = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.lastResultStatus,)
+    packet_elements += (self.lMeasurementStatusInfo,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTrackerStatusCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTrackerStatus
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTrackerStatusRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTrackerStatus
+    self.trackerStatus = int(0)  # ES_TrackerStatus
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.trackerStatus = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.trackerStatus,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetReflectorCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetReflector
+    self.iInternalReflectorId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalReflectorId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalReflectorId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetReflectorRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetReflector
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetReflectorsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetReflectors
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetReflectorsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 100
+    self.__sizes = [84]
+    self.__formats = [('<i i I d 64s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetReflectors
+    self.iTotalReflectors = int(0)
+    self.iInternalReflectorId = int(0)
+    self.targetType = int(0)  # ES_TargetType
+    self.dSurfaceOffset = float(0)
+    self.cReflectorName = b''  # 64 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalReflectors = packet_elements[0]
+    self.iInternalReflectorId = packet_elements[1]
+    self.targetType = packet_elements[2]
+    self.dSurfaceOffset = packet_elements[3]
+    self.cReflectorName = packet_elements[4]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalReflectors,)
+    packet_elements += (self.iInternalReflectorId,)
+    packet_elements += (self.targetType,)
+    packet_elements += (self.dSurfaceOffset,)
+    packet_elements += (self.cReflectorName,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetReflectorCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetReflector
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetReflectorRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetReflector
+    self.iInternalReflectorId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalReflectorId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalReflectorId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class EnvironmentDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [24]
+    self.__formats = [('<d d d ')]
+    self.dTemperature = float(0)
+    self.dPressure = float(0)
+    self.dHumidity = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dTemperature = packet_elements[0]
+    self.dPressure = packet_elements[1]
+    self.dHumidity = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dTemperature,)
+    packet_elements += (self.dPressure,)
+    packet_elements += (self.dHumidity,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetEnvironmentParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetEnvironmentParams
+    self.environmentData = EnvironmentDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.environmentData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.environmentData.pack()
+    return self.packet
+
+class SetEnvironmentParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetEnvironmentParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetEnvironmentParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetEnvironmentParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetEnvironmentParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetEnvironmentParams
+    self.environmentData = EnvironmentDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.environmentData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.environmentData.pack()
+    return self.packet
+
+class RefractionDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [16]
+    self.__formats = [('<d d ')]
+    self.dIfmRefractionIndex = float(0)
+    self.dAdmRefractionIndex = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dIfmRefractionIndex = packet_elements[0]
+    self.dAdmRefractionIndex = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dIfmRefractionIndex,)
+    packet_elements += (self.dAdmRefractionIndex,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetRefractionParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetRefractionParams
+    self.refractionData = RefractionDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.refractionData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.refractionData.pack()
+    return self.packet
+
+class SetRefractionParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetRefractionParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetRefractionParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetRefractionParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetRefractionParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetRefractionParams
+    self.refractionData = RefractionDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.refractionData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.refractionData.pack()
+    return self.packet
+
+class StationOrientationDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 48
+    self.__sizes = [48]
+    self.__formats = [('<d d d d d d ')]
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dRot1 = float(0)
+    self.dRot2 = float(0)
+    self.dRot3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    self.dRot1 = packet_elements[3]
+    self.dRot2 = packet_elements[4]
+    self.dRot3 = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dRot1,)
+    packet_elements += (self.dRot2,)
+    packet_elements += (self.dRot3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetStationOrientationParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 60
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetStationOrientationParams
+    self.stationOrientation = StationOrientationDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.stationOrientation.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.stationOrientation.pack()
+    return self.packet
+
+class SetStationOrientationParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetStationOrientationParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetStationOrientationParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStationOrientationParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetStationOrientationParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 64
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStationOrientationParams
+    self.stationOrientation = StationOrientationDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.stationOrientation.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.stationOrientation.pack()
+    return self.packet
+
+class TransformationDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 56
+    self.__sizes = [56]
+    self.__formats = [('<d d d d d d d ')]
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dRot1 = float(0)
+    self.dRot2 = float(0)
+    self.dRot3 = float(0)
+    self.dScale = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    self.dRot1 = packet_elements[3]
+    self.dRot2 = packet_elements[4]
+    self.dRot3 = packet_elements[5]
+    self.dScale = packet_elements[6]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dRot1,)
+    packet_elements += (self.dRot2,)
+    packet_elements += (self.dRot3,)
+    packet_elements += (self.dScale,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTransformationParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 68
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTransformationParams
+    self.transformationData = TransformationDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.transformationData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.transformationData.pack()
+    return self.packet
+
+class SetTransformationParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTransformationParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTransformationParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTransformationParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTransformationParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 72
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTransformationParams
+    self.transformationData = TransformationDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.transformationData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.transformationData.pack()
+    return self.packet
+
+class BoxRegionDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 48
+    self.__sizes = [48]
+    self.__formats = [('<d d d d d d ')]
+    self.dP1Val1 = float(0)
+    self.dP1Val2 = float(0)
+    self.dP1Val3 = float(0)
+    self.dP2Val1 = float(0)
+    self.dP2Val2 = float(0)
+    self.dP2Val3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dP1Val1 = packet_elements[0]
+    self.dP1Val2 = packet_elements[1]
+    self.dP1Val3 = packet_elements[2]
+    self.dP2Val1 = packet_elements[3]
+    self.dP2Val2 = packet_elements[4]
+    self.dP2Val3 = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dP1Val1,)
+    packet_elements += (self.dP1Val2,)
+    packet_elements += (self.dP1Val3,)
+    packet_elements += (self.dP2Val1,)
+    packet_elements += (self.dP2Val2,)
+    packet_elements += (self.dP2Val3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetBoxRegionParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 60
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetBoxRegionParams
+    self.boxRegionData = BoxRegionDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.boxRegionData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.boxRegionData.pack()
+    return self.packet
+
+class SetBoxRegionParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetBoxRegionParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetBoxRegionParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetBoxRegionParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetBoxRegionParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 64
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetBoxRegionParams
+    self.boxRegionData = BoxRegionDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.boxRegionData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.boxRegionData.pack()
+    return self.packet
+
+class SphereRegionDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = [32]
+    self.__formats = [('<d d d d ')]
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dRadius = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    self.dRadius = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dRadius,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetSphereRegionParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 44
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSphereRegionParams
+    self.sphereRegionData = SphereRegionDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.sphereRegionData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.sphereRegionData.pack()
+    return self.packet
+
+class SetSphereRegionParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetSphereRegionParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSphereRegionParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSphereRegionParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSphereRegionParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 48
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSphereRegionParams
+    self.sphereRegionData = SphereRegionDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.sphereRegionData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.sphereRegionData.pack()
+    return self.packet
+
+class GoPositionCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = [28]
+    self.__formats = [('<d d d i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoPosition
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.bUseADM = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    self.bUseADM = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.bUseADM,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GoPositionRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoPosition
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class LookForTargetCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 44
+    self.__sizes = [32]
+    self.__formats = [('<d d d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_LookForTarget
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dSearchRadius = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    self.dSearchRadius = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dSearchRadius,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class LookForTargetRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = [16]
+    self.__formats = [('<d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_LookForTarget
+    self.dHzAngle = float(0)
+    self.dVtAngle = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dHzAngle = packet_elements[0]
+    self.dVtAngle = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dHzAngle,)
+    packet_elements += (self.dVtAngle,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetDirectionCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetDirection
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetDirectionRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = [16]
+    self.__formats = [('<d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetDirection
+    self.dHzAngle = float(0)
+    self.dVtAngle = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dHzAngle = packet_elements[0]
+    self.dVtAngle = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dHzAngle,)
+    packet_elements += (self.dVtAngle,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GoPositionHVDCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = [28]
+    self.__formats = [('<d d d i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoPositionHVD
+    self.dHzAngle = float(0)
+    self.dVtAngle = float(0)
+    self.dDistance = float(0)
+    self.bUseADM = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dHzAngle = packet_elements[0]
+    self.dVtAngle = packet_elements[1]
+    self.dDistance = packet_elements[2]
+    self.bUseADM = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dHzAngle,)
+    packet_elements += (self.dVtAngle,)
+    packet_elements += (self.dDistance,)
+    packet_elements += (self.bUseADM,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GoPositionHVDRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoPositionHVD
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class PointLaserCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [24]
+    self.__formats = [('<d d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_PointLaser
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class PointLaserRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_PointLaser
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class PositionRelativeHVCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = [16]
+    self.__formats = [('<d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_PositionRelativeHV
+    self.dHzVal = float(0)
+    self.dVtVal = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dHzVal = packet_elements[0]
+    self.dVtVal = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dHzVal,)
+    packet_elements += (self.dVtVal,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class PositionRelativeHVRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_PositionRelativeHV
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class PointLaserHVDCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [24]
+    self.__formats = [('<d d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_PointLaserHVD
+    self.dHzAngle = float(0)
+    self.dVtAngle = float(0)
+    self.dDistance = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dHzAngle = packet_elements[0]
+    self.dVtAngle = packet_elements[1]
+    self.dDistance = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dHzAngle,)
+    packet_elements += (self.dVtAngle,)
+    packet_elements += (self.dDistance,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class PointLaserHVDRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_PointLaserHVD
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class MoveHVCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [8]
+    self.__formats = [('<i i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_MoveHV
+    self.iHzSpeed = int(0)
+    self.iVtSpeed = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iHzSpeed = packet_elements[0]
+    self.iVtSpeed = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iHzSpeed,)
+    packet_elements += (self.iVtSpeed,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class MoveHVRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_MoveHV
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GoNivelPositionCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoNivelPosition
+    self.nivelPosition = int(0)  # ES_NivelPosition
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.nivelPosition = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.nivelPosition,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GoNivelPositionRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoNivelPosition
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class CallOrientToGravityCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CallOrientToGravity
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class CallOrientToGravityRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = [16]
+    self.__formats = [('<d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CallOrientToGravity
+    self.dOmega = float(0)
+    self.dPhi = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dOmega = packet_elements[0]
+    self.dPhi = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dOmega,)
+    packet_elements += (self.dPhi,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class CallIntermediateCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CallIntermediateCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class CallIntermediateCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [20]
+    self.__formats = [('<d d i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CallIntermediateCompensation
+    self.dTotalRMS = float(0)
+    self.dMaxDev = float(0)
+    self.lWarningFlags = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dTotalRMS = packet_elements[0]
+    self.dMaxDev = packet_elements[1]
+    self.lWarningFlags = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dTotalRMS,)
+    packet_elements += (self.dMaxDev,)
+    packet_elements += (self.lWarningFlags,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class CallTransformationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CallTransformation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class CallTransformationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 152
+    self.__sizes = [136]
+    self.__formats = [('<d d d d d d d d d d d d d d d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CallTransformation
+    self.dTransVal1 = float(0)
+    self.dTransVal2 = float(0)
+    self.dTransVal3 = float(0)
+    self.dRotVal1 = float(0)
+    self.dRotVal2 = float(0)
+    self.dRotVal3 = float(0)
+    self.dScale = float(0)
+    self.dTransStdVal1 = float(0)
+    self.dTransStdVal2 = float(0)
+    self.dTransStdVal3 = float(0)
+    self.dRotStdVal1 = float(0)
+    self.dRotStdVal2 = float(0)
+    self.dRotStdVal3 = float(0)
+    self.dScaleStd = float(0)
+    self.dRMS = float(0)
+    self.dMaxDev = float(0)
+    self.dVarianceFactor = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dTransVal1 = packet_elements[0]
+    self.dTransVal2 = packet_elements[1]
+    self.dTransVal3 = packet_elements[2]
+    self.dRotVal1 = packet_elements[3]
+    self.dRotVal2 = packet_elements[4]
+    self.dRotVal3 = packet_elements[5]
+    self.dScale = packet_elements[6]
+    self.dTransStdVal1 = packet_elements[7]
+    self.dTransStdVal2 = packet_elements[8]
+    self.dTransStdVal3 = packet_elements[9]
+    self.dRotStdVal1 = packet_elements[10]
+    self.dRotStdVal2 = packet_elements[11]
+    self.dRotStdVal3 = packet_elements[12]
+    self.dScaleStd = packet_elements[13]
+    self.dRMS = packet_elements[14]
+    self.dMaxDev = packet_elements[15]
+    self.dVarianceFactor = packet_elements[16]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dTransVal1,)
+    packet_elements += (self.dTransVal2,)
+    packet_elements += (self.dTransVal3,)
+    packet_elements += (self.dRotVal1,)
+    packet_elements += (self.dRotVal2,)
+    packet_elements += (self.dRotVal3,)
+    packet_elements += (self.dScale,)
+    packet_elements += (self.dTransStdVal1,)
+    packet_elements += (self.dTransStdVal2,)
+    packet_elements += (self.dTransStdVal3,)
+    packet_elements += (self.dRotStdVal1,)
+    packet_elements += (self.dRotStdVal2,)
+    packet_elements += (self.dRotStdVal3,)
+    packet_elements += (self.dScaleStd,)
+    packet_elements += (self.dRMS,)
+    packet_elements += (self.dMaxDev,)
+    packet_elements += (self.dVarianceFactor,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class TransformationInputDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 116
+    self.__sizes = [116]
+    self.__formats = [('<I d d d d d d d d d d d d d d ')]
+    self.resultType = int(0)  # ES_TransResultType
+    self.dTransVal1 = float(0)
+    self.dTransVal2 = float(0)
+    self.dTransVal3 = float(0)
+    self.dRotVal1 = float(0)
+    self.dRotVal2 = float(0)
+    self.dRotVal3 = float(0)
+    self.dScale = float(0)
+    self.dTransStdVal1 = float(0)
+    self.dTransStdVal2 = float(0)
+    self.dTransStdVal3 = float(0)
+    self.dRotStdVal1 = float(0)
+    self.dRotStdVal2 = float(0)
+    self.dRotStdVal3 = float(0)
+    self.dScaleStd = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.resultType = packet_elements[0]
+    self.dTransVal1 = packet_elements[1]
+    self.dTransVal2 = packet_elements[2]
+    self.dTransVal3 = packet_elements[3]
+    self.dRotVal1 = packet_elements[4]
+    self.dRotVal2 = packet_elements[5]
+    self.dRotVal3 = packet_elements[6]
+    self.dScale = packet_elements[7]
+    self.dTransStdVal1 = packet_elements[8]
+    self.dTransStdVal2 = packet_elements[9]
+    self.dTransStdVal3 = packet_elements[10]
+    self.dRotStdVal1 = packet_elements[11]
+    self.dRotStdVal2 = packet_elements[12]
+    self.dRotStdVal3 = packet_elements[13]
+    self.dScaleStd = packet_elements[14]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.resultType,)
+    packet_elements += (self.dTransVal1,)
+    packet_elements += (self.dTransVal2,)
+    packet_elements += (self.dTransVal3,)
+    packet_elements += (self.dRotVal1,)
+    packet_elements += (self.dRotVal2,)
+    packet_elements += (self.dRotVal3,)
+    packet_elements += (self.dScale,)
+    packet_elements += (self.dTransStdVal1,)
+    packet_elements += (self.dTransStdVal2,)
+    packet_elements += (self.dTransStdVal3,)
+    packet_elements += (self.dRotStdVal1,)
+    packet_elements += (self.dRotStdVal2,)
+    packet_elements += (self.dRotStdVal3,)
+    packet_elements += (self.dScaleStd,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTransformationInputParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 128
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTransformationInputParams
+    self.transformationData = TransformationInputDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.transformationData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.transformationData.pack()
+    return self.packet
+
+class SetTransformationInputParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTransformationInputParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTransformationInputParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTransformationInputParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTransformationInputParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 132
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTransformationInputParams
+    self.transformationData = TransformationInputDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.transformationData.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.transformationData.pack()
+    return self.packet
+
+class ClearTransformationNominalPointListCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearTransformationNominalPointList
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ClearTransformationNominalPointListRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearTransformationNominalPointList
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ClearTransformationActualPointListCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearTransformationActualPointList
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ClearTransformationActualPointListRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearTransformationActualPointList
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class TransformationPointT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 72
+    self.__sizes = [72]
+    self.__formats = [('<d d d d d d d d d ')]
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dStd1 = float(0)
+    self.dStd2 = float(0)
+    self.dStd3 = float(0)
+    self.dCovar12 = float(0)
+    self.dCovar13 = float(0)
+    self.dCovar23 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    self.dStd1 = packet_elements[3]
+    self.dStd2 = packet_elements[4]
+    self.dStd3 = packet_elements[5]
+    self.dCovar12 = packet_elements[6]
+    self.dCovar13 = packet_elements[7]
+    self.dCovar23 = packet_elements[8]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dStd1,)
+    packet_elements += (self.dStd2,)
+    packet_elements += (self.dStd3,)
+    packet_elements += (self.dCovar12,)
+    packet_elements += (self.dCovar13,)
+    packet_elements += (self.dCovar23,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class AddTransformationNominalPointCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 84
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_AddTransformationNominalPoint
+    self.transformationPoint = TransformationPointT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.transformationPoint.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.transformationPoint.pack()
+    return self.packet
+
+class AddTransformationNominalPointRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_AddTransformationNominalPoint
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class AddTransformationActualPointCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 84
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_AddTransformationActualPoint
+    self.transformationPoint = TransformationPointT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.transformationPoint.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.transformationPoint.pack()
+    return self.packet
+
+class AddTransformationActualPointRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_AddTransformationActualPoint
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTransformedPointsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTransformedPoints
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTransformedPointsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 124
+    self.__sizes = [108]
+    self.__formats = [('<i d d d d d d d d d d d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTransformedPoints
+    self.iTotalPoints = int(0)
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+    self.dStd1 = float(0)
+    self.dStd2 = float(0)
+    self.dStd3 = float(0)
+    self.dStdTotal = float(0)
+    self.dCovar12 = float(0)
+    self.dCovar13 = float(0)
+    self.dCovar23 = float(0)
+    self.dResidualVal1 = float(0)
+    self.dResidualVal2 = float(0)
+    self.dResidualVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalPoints = packet_elements[0]
+    self.dVal1 = packet_elements[1]
+    self.dVal2 = packet_elements[2]
+    self.dVal3 = packet_elements[3]
+    self.dStd1 = packet_elements[4]
+    self.dStd2 = packet_elements[5]
+    self.dStd3 = packet_elements[6]
+    self.dStdTotal = packet_elements[7]
+    self.dCovar12 = packet_elements[8]
+    self.dCovar13 = packet_elements[9]
+    self.dCovar23 = packet_elements[10]
+    self.dResidualVal1 = packet_elements[11]
+    self.dResidualVal2 = packet_elements[12]
+    self.dResidualVal3 = packet_elements[13]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalPoints,)
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    packet_elements += (self.dStd1,)
+    packet_elements += (self.dStd2,)
+    packet_elements += (self.dStd3,)
+    packet_elements += (self.dStdTotal,)
+    packet_elements += (self.dCovar12,)
+    packet_elements += (self.dCovar13,)
+    packet_elements += (self.dCovar23,)
+    packet_elements += (self.dResidualVal1,)
+    packet_elements += (self.dResidualVal2,)
+    packet_elements += (self.dResidualVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ClearDrivePointListCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearDrivePointList
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class ClearDrivePointListRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearDrivePointList
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class AddDrivePointCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = [28]
+    self.__formats = [('<i d d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_AddDrivePoint
+    self.iInternalReflectorId = int(0)
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalReflectorId = packet_elements[0]
+    self.dVal1 = packet_elements[1]
+    self.dVal2 = packet_elements[2]
+    self.dVal3 = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalReflectorId,)
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class AddDrivePointRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_AddDrivePoint
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class SetCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCompensation
+    self.iInternalCompensationId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalCompensationId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalCompensationId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCompensation
+    self.iInternalCompensationId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalCompensationId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalCompensationId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetCompensationsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCompensations
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCompensationsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 412
+    self.__sizes = [396]
+    self.__formats = [('<i i 64s 256s 64s i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCompensations
+    self.iTotalCompensations = int(0)
+    self.iInternalCompensationId = int(0)
+    self.cTrackerCompensationName = b''  # 64 bytes max
+    self.cTrackerCompensationComment = b''  # 256 bytes max
+    self.cADMCompensationName = b''  # 64 bytes max
+    self.bHasMeasurementCameraMounted = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalCompensations = packet_elements[0]
+    self.iInternalCompensationId = packet_elements[1]
+    self.cTrackerCompensationName = packet_elements[2]
+    self.cTrackerCompensationComment = packet_elements[3]
+    self.cADMCompensationName = packet_elements[4]
+    self.bHasMeasurementCameraMounted = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalCompensations,)
+    packet_elements += (self.iInternalCompensationId,)
+    packet_elements += (self.cTrackerCompensationName,)
+    packet_elements += (self.cTrackerCompensationComment,)
+    packet_elements += (self.cADMCompensationName,)
+    packet_elements += (self.bHasMeasurementCameraMounted,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetCompensations2CT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCompensations2
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCompensations2RT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 672
+    self.__sizes = [656]
+    self.__formats = [('<i i 64s 256s 64s 256s i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCompensations2
+    self.iTotalCompensations = int(0)
+    self.iInternalCompensationId = int(0)
+    self.cTrackerCompensationName = b''  # 64 bytes max
+    self.cTrackerCompensationComment = b''  # 256 bytes max
+    self.cADMCompensationName = b''  # 64 bytes max
+    self.cADMCompensationComment = b''  # 256 bytes max
+    self.bHasMeasurementCameraMounted = int(0)
+    self.bIsActive = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalCompensations = packet_elements[0]
+    self.iInternalCompensationId = packet_elements[1]
+    self.cTrackerCompensationName = packet_elements[2]
+    self.cTrackerCompensationComment = packet_elements[3]
+    self.cADMCompensationName = packet_elements[4]
+    self.cADMCompensationComment = packet_elements[5]
+    self.bHasMeasurementCameraMounted = packet_elements[6]
+    self.bIsActive = packet_elements[7]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalCompensations,)
+    packet_elements += (self.iInternalCompensationId,)
+    packet_elements += (self.cTrackerCompensationName,)
+    packet_elements += (self.cTrackerCompensationComment,)
+    packet_elements += (self.cADMCompensationName,)
+    packet_elements += (self.cADMCompensationComment,)
+    packet_elements += (self.bHasMeasurementCameraMounted,)
+    packet_elements += (self.bIsActive,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetStatisticModeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [8]
+    self.__formats = [('<I I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetStatisticMode
+    self.stationaryMeasurements = int(0)  # ES_StatisticMode
+    self.continuousMeasurements = int(0)  # ES_StatisticMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.stationaryMeasurements = packet_elements[0]
+    self.continuousMeasurements = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.stationaryMeasurements,)
+    packet_elements += (self.continuousMeasurements,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetStatisticModeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetStatisticMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetStatisticModeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStatisticMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetStatisticModeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<I I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStatisticMode
+    self.stationaryMeasurements = int(0)  # ES_StatisticMode
+    self.continuousMeasurements = int(0)  # ES_StatisticMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.stationaryMeasurements = packet_elements[0]
+    self.continuousMeasurements = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.stationaryMeasurements,)
+    packet_elements += (self.continuousMeasurements,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class CameraParamsDataT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = [12]
+    self.__formats = [('<i i i ')]
+    self.iContrast = int(0)
+    self.iBrightness = int(0)
+    self.iSaturation = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iContrast = packet_elements[0]
+    self.iBrightness = packet_elements[1]
+    self.iSaturation = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.iContrast,)
+    packet_elements += (self.iBrightness,)
+    packet_elements += (self.iSaturation,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetCameraParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCameraParams
+    self.cameraParams = CameraParamsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.cameraParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.cameraParams.pack()
+    return self.packet
+
+class SetCameraParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetCameraParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCameraParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCameraParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCameraParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCameraParams
+    self.cameraParams = CameraParamsDataT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.cameraParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.cameraParams.pack()
+    return self.packet
+
+class GetStillImageCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStillImage
+    self.imageFileType = int(0)  # ES_StillImageFileType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.imageFileType = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.imageFileType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetStillImageRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<I i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetStillImage
+    self.imageFiletype = int(0)  # ES_StillImageFileType
+    self.lFileSize = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.imageFiletype = packet_elements[0]
+    self.lFileSize = packet_elements[1]
+    self.cFileStart = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.imageFiletype,)
+    packet_elements += (self.lFileSize,)
+    packet_elements += (self.cFileStart,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class CheckBirdBathCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CheckBirdBath
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class CheckBirdBathRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 64
+    self.__sizes = [48]
+    self.__formats = [('<d d d d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_CheckBirdBath
+    self.dInitialHzAngle = float(0)
+    self.dInitialVtAngle = float(0)
+    self.dInitialDistance = float(0)
+    self.dHzAngleDiff = float(0)
+    self.dVtAngleDiff = float(0)
+    self.dDistanceDiff = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dInitialHzAngle = packet_elements[0]
+    self.dInitialVtAngle = packet_elements[1]
+    self.dInitialDistance = packet_elements[2]
+    self.dHzAngleDiff = packet_elements[3]
+    self.dVtAngleDiff = packet_elements[4]
+    self.dDistanceDiff = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dInitialHzAngle,)
+    packet_elements += (self.dInitialVtAngle,)
+    packet_elements += (self.dInitialDistance,)
+    packet_elements += (self.dHzAngleDiff,)
+    packet_elements += (self.dVtAngleDiff,)
+    packet_elements += (self.dDistanceDiff,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTrackerDiagnosticsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTrackerDiagnostics
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTrackerDiagnosticsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 116
+    self.__sizes = [100]
+    self.__formats = [('<d d d d d d d d d d i d i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTrackerDiagnostics
+    self.dTrkPhotoSensorXVal = float(0)
+    self.dTrkPhotoSensorYVal = float(0)
+    self.dTrkPhotoSensorIVal = float(0)
+    self.dRefPhotoSensorXVal = float(0)
+    self.dRefPhotoSensorYVal = float(0)
+    self.dRefPhotoSensorIVal = float(0)
+    self.dADConverterRange = float(0)
+    self.dServoControlPointX = float(0)
+    self.dServoControlPointY = float(0)
+    self.dLaserLightRatio = float(0)
+    self.iLaserControlMode = int(0)
+    self.dSensorInsideTemperature = float(0)
+    self.iLCPRunTime = int(0)
+    self.iLaserTubeRunTime = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dTrkPhotoSensorXVal = packet_elements[0]
+    self.dTrkPhotoSensorYVal = packet_elements[1]
+    self.dTrkPhotoSensorIVal = packet_elements[2]
+    self.dRefPhotoSensorXVal = packet_elements[3]
+    self.dRefPhotoSensorYVal = packet_elements[4]
+    self.dRefPhotoSensorIVal = packet_elements[5]
+    self.dADConverterRange = packet_elements[6]
+    self.dServoControlPointX = packet_elements[7]
+    self.dServoControlPointY = packet_elements[8]
+    self.dLaserLightRatio = packet_elements[9]
+    self.iLaserControlMode = packet_elements[10]
+    self.dSensorInsideTemperature = packet_elements[11]
+    self.iLCPRunTime = packet_elements[12]
+    self.iLaserTubeRunTime = packet_elements[13]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dTrkPhotoSensorXVal,)
+    packet_elements += (self.dTrkPhotoSensorYVal,)
+    packet_elements += (self.dTrkPhotoSensorIVal,)
+    packet_elements += (self.dRefPhotoSensorXVal,)
+    packet_elements += (self.dRefPhotoSensorYVal,)
+    packet_elements += (self.dRefPhotoSensorIVal,)
+    packet_elements += (self.dADConverterRange,)
+    packet_elements += (self.dServoControlPointX,)
+    packet_elements += (self.dServoControlPointY,)
+    packet_elements += (self.dLaserLightRatio,)
+    packet_elements += (self.iLaserControlMode,)
+    packet_elements += (self.dSensorInsideTemperature,)
+    packet_elements += (self.iLCPRunTime,)
+    packet_elements += (self.iLaserTubeRunTime,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetADMInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetADMInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetADMInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = [12]
+    self.__formats = [('<i i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetADMInfo
+    self.iFirmwareMajorVersionNumber = int(0)
+    self.iFirmwareMinorVersionNumber = int(0)
+    self.lSerialNumber = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iFirmwareMajorVersionNumber = packet_elements[0]
+    self.iFirmwareMinorVersionNumber = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iFirmwareMajorVersionNumber,)
+    packet_elements += (self.iFirmwareMinorVersionNumber,)
+    packet_elements += (self.lSerialNumber,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetADMInfo2CT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetADMInfo2
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetADMInfo2RT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 124
+    self.__sizes = [108]
+    self.__formats = [('<I 64s i i i d d i d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetADMInfo2
+    self.admType = int(0)  # ES_ADMType
+    self.cADMName = b''  # 64 bytes max
+    self.lSerialNumber = int(0)
+    self.iFirmwareMajorVersionNumber = int(0)
+    self.iFirmwareMinorVersionNumber = int(0)
+    self.dMaxDistance = float(0)
+    self.dMinDistance = float(0)
+    self.iMaxDataRate = int(0)
+    self.dAccuracyADMDistance = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.admType = packet_elements[0]
+    self.cADMName = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.iFirmwareMajorVersionNumber = packet_elements[3]
+    self.iFirmwareMinorVersionNumber = packet_elements[4]
+    self.dMaxDistance = packet_elements[5]
+    self.dMinDistance = packet_elements[6]
+    self.iMaxDataRate = packet_elements[7]
+    self.dAccuracyADMDistance = packet_elements[8]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.admType,)
+    packet_elements += (self.cADMName,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.iFirmwareMajorVersionNumber,)
+    packet_elements += (self.iFirmwareMinorVersionNumber,)
+    packet_elements += (self.dMaxDistance,)
+    packet_elements += (self.dMinDistance,)
+    packet_elements += (self.iMaxDataRate,)
+    packet_elements += (self.dAccuracyADMDistance,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetNivelInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetNivelInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetNivelInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = [12]
+    self.__formats = [('<i i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetNivelInfo
+    self.iFirmwareMajorVersionNumber = int(0)
+    self.iFirmwareMinorVersionNumber = int(0)
+    self.lSerialNumber = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iFirmwareMajorVersionNumber = packet_elements[0]
+    self.iFirmwareMinorVersionNumber = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iFirmwareMajorVersionNumber,)
+    packet_elements += (self.iFirmwareMinorVersionNumber,)
+    packet_elements += (self.lSerialNumber,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetNivelInfo2CT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetNivelInfo2
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetNivelInfo2RT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 120
+    self.__sizes = [104]
+    self.__formats = [('<I 64s i i i d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetNivelInfo2
+    self.nivelType = int(0)  # ES_NivelType
+    self.cNivelName = b''  # 64 bytes max
+    self.lSerialNumber = int(0)
+    self.iFirmwareMajorVersionNumber = int(0)
+    self.iFirmwareMinorVersionNumber = int(0)
+    self.dMeasurementRange = float(0)
+    self.dMeasurementAccuracyOffset = float(0)
+    self.dMeasurementAccuracyFactor = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.nivelType = packet_elements[0]
+    self.cNivelName = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.iFirmwareMajorVersionNumber = packet_elements[3]
+    self.iFirmwareMinorVersionNumber = packet_elements[4]
+    self.dMeasurementRange = packet_elements[5]
+    self.dMeasurementAccuracyOffset = packet_elements[6]
+    self.dMeasurementAccuracyFactor = packet_elements[7]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.nivelType,)
+    packet_elements += (self.cNivelName,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.iFirmwareMajorVersionNumber,)
+    packet_elements += (self.iFirmwareMinorVersionNumber,)
+    packet_elements += (self.dMeasurementRange,)
+    packet_elements += (self.dMeasurementAccuracyOffset,)
+    packet_elements += (self.dMeasurementAccuracyFactor,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTPInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTPInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTPInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 56
+    self.__sizes = [40]
+    self.__formats = [('<i i i i i i I I i I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTPInfo
+    self.iTPBootMajorVersionNumber = int(0)
+    self.iTPBootMinorVersionNumber = int(0)
+    self.iTPFirmwareMajorVersionNumber = int(0)
+    self.iTPFirmwareMinorVersionNumber = int(0)
+    self.iLCPFirmwareMajorVersionNumber = int(0)
+    self.iLCPFirmwareMinorVersionNumber = int(0)
+    self.trackerprocessorType = int(0)  # ES_TrackerProcessorType
+    self.microProcessorType = int(0)  # ES_TPMicroProcessorType
+    self.iMicroProcessorClockSpeed = int(0)
+    self.laserTrackerSensorType = int(0)  # ES_LTSensorType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTPBootMajorVersionNumber = packet_elements[0]
+    self.iTPBootMinorVersionNumber = packet_elements[1]
+    self.iTPFirmwareMajorVersionNumber = packet_elements[2]
+    self.iTPFirmwareMinorVersionNumber = packet_elements[3]
+    self.iLCPFirmwareMajorVersionNumber = packet_elements[4]
+    self.iLCPFirmwareMinorVersionNumber = packet_elements[5]
+    self.trackerprocessorType = packet_elements[6]
+    self.microProcessorType = packet_elements[7]
+    self.iMicroProcessorClockSpeed = packet_elements[8]
+    self.laserTrackerSensorType = packet_elements[9]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTPBootMajorVersionNumber,)
+    packet_elements += (self.iTPBootMinorVersionNumber,)
+    packet_elements += (self.iTPFirmwareMajorVersionNumber,)
+    packet_elements += (self.iTPFirmwareMinorVersionNumber,)
+    packet_elements += (self.iLCPFirmwareMajorVersionNumber,)
+    packet_elements += (self.iLCPFirmwareMinorVersionNumber,)
+    packet_elements += (self.trackerprocessorType,)
+    packet_elements += (self.microProcessorType,)
+    packet_elements += (self.iMicroProcessorClockSpeed,)
+    packet_elements += (self.laserTrackerSensorType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTrackerInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTrackerInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTrackerInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 164
+    self.__sizes = [148]
+    self.__formats = [('<I 64s i i i i i d d d i i d d I i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTrackerInfo
+    self.trackerType = int(0)  # ES_LTSensorType
+    self.cTrackerName = b''  # 64 bytes max
+    self.lSerialNumber = int(0)
+    self.lCompensationIdNumber = int(0)
+    self.bHasADM = int(0)
+    self.bHasOverviewCamera = int(0)
+    self.bHasNivel = int(0)
+    self.dNivelMountOffset = float(0)
+    self.dMaxDistance = float(0)
+    self.dMinDistance = float(0)
+    self.iMaxDataRate = int(0)
+    self.iNumberOfFaces = int(0)
+    self.dHzAngleRange = float(0)
+    self.dVtAngleRange = float(0)
+    self.accuracyModel = int(0)  # ES_TrkAccuracyModel
+    self.iMajLCPFirmwareVersion = int(0)
+    self.iMinLCPFirmwareVersion = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.trackerType = packet_elements[0]
+    self.cTrackerName = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.lCompensationIdNumber = packet_elements[3]
+    self.bHasADM = packet_elements[4]
+    self.bHasOverviewCamera = packet_elements[5]
+    self.bHasNivel = packet_elements[6]
+    self.dNivelMountOffset = packet_elements[7]
+    self.dMaxDistance = packet_elements[8]
+    self.dMinDistance = packet_elements[9]
+    self.iMaxDataRate = packet_elements[10]
+    self.iNumberOfFaces = packet_elements[11]
+    self.dHzAngleRange = packet_elements[12]
+    self.dVtAngleRange = packet_elements[13]
+    self.accuracyModel = packet_elements[14]
+    self.iMajLCPFirmwareVersion = packet_elements[15]
+    self.iMinLCPFirmwareVersion = packet_elements[16]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.trackerType,)
+    packet_elements += (self.cTrackerName,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.lCompensationIdNumber,)
+    packet_elements += (self.bHasADM,)
+    packet_elements += (self.bHasOverviewCamera,)
+    packet_elements += (self.bHasNivel,)
+    packet_elements += (self.dNivelMountOffset,)
+    packet_elements += (self.dMaxDistance,)
+    packet_elements += (self.dMinDistance,)
+    packet_elements += (self.iMaxDataRate,)
+    packet_elements += (self.iNumberOfFaces,)
+    packet_elements += (self.dHzAngleRange,)
+    packet_elements += (self.dVtAngleRange,)
+    packet_elements += (self.accuracyModel,)
+    packet_elements += (self.iMajLCPFirmwareVersion,)
+    packet_elements += (self.iMinLCPFirmwareVersion,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetATRInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetATRInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetATRInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 140
+    self.__sizes = [124]
+    self.__formats = [('<I 64s i i i i i i d d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetATRInfo
+    self.atrType = int(0)  # ES_ATRType
+    self.cATRName = b''  # 64 bytes max
+    self.lMajFirmwareVersion = int(0)
+    self.lMinFirmwareVersion = int(0)
+    self.lBuildFirmwareVersion = int(0)
+    self.lHardwareVersion = int(0)
+    self.lErrorcode = int(0)
+    self.lFPGAVersion = int(0)
+    self.dMaxDistance = float(0)
+    self.dMinDistance = float(0)
+    self.dFieldOfView = float(0)
+    self.dMaxTrackingSpeed = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.atrType = packet_elements[0]
+    self.cATRName = packet_elements[1]
+    self.lMajFirmwareVersion = packet_elements[2]
+    self.lMinFirmwareVersion = packet_elements[3]
+    self.lBuildFirmwareVersion = packet_elements[4]
+    self.lHardwareVersion = packet_elements[5]
+    self.lErrorcode = packet_elements[6]
+    self.lFPGAVersion = packet_elements[7]
+    self.dMaxDistance = packet_elements[8]
+    self.dMinDistance = packet_elements[9]
+    self.dFieldOfView = packet_elements[10]
+    self.dMaxTrackingSpeed = packet_elements[11]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.atrType,)
+    packet_elements += (self.cATRName,)
+    packet_elements += (self.lMajFirmwareVersion,)
+    packet_elements += (self.lMinFirmwareVersion,)
+    packet_elements += (self.lBuildFirmwareVersion,)
+    packet_elements += (self.lHardwareVersion,)
+    packet_elements += (self.lErrorcode,)
+    packet_elements += (self.lFPGAVersion,)
+    packet_elements += (self.dMaxDistance,)
+    packet_elements += (self.dMinDistance,)
+    packet_elements += (self.dFieldOfView,)
+    packet_elements += (self.dMaxTrackingSpeed,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetLaserOnTimerCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [8]
+    self.__formats = [('<i i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetLaserOnTimer
+    self.iLaserOnTimeOffsetHour = int(0)
+    self.iLaserOnTimeOffsetMinute = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iLaserOnTimeOffsetHour = packet_elements[0]
+    self.iLaserOnTimeOffsetMinute = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iLaserOnTimeOffsetHour,)
+    packet_elements += (self.iLaserOnTimeOffsetMinute,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetLaserOnTimerRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetLaserOnTimer
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetLaserOnTimerCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetLaserOnTimer
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetLaserOnTimerRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetLaserOnTimer
+    self.iLaserOnTimeOffsetHour = int(0)
+    self.iLaserOnTimeOffsetMinute = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iLaserOnTimeOffsetHour = packet_elements[0]
+    self.iLaserOnTimeOffsetMinute = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iLaserOnTimeOffsetHour,)
+    packet_elements += (self.iLaserOnTimeOffsetMinute,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ConvertDisplayCoordinatesCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = [28]
+    self.__formats = [('<I d d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ConvertDisplayCoordinates
+    self.conversionType = int(0)  # ES_DisplayCoordinateConversionType
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.conversionType = packet_elements[0]
+    self.dVal1 = packet_elements[1]
+    self.dVal2 = packet_elements[2]
+    self.dVal3 = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.conversionType,)
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ConvertDisplayCoordinatesRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = [24]
+    self.__formats = [('<d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ConvertDisplayCoordinates
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTriggerSourceCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTriggerSource
+    self.triggerSource = int(0)  # ES_TriggerSource
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.triggerSource = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.triggerSource,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTriggerSourceRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTriggerSource
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTriggerSourceCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTriggerSource
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTriggerSourceRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTriggerSource
+    self.triggerSource = int(0)  # ES_TriggerSource
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.triggerSource = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.triggerSource,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetFaceCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetFace
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetFaceRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetFace
+    self.trackerFace = int(0)  # ES_TrackerFace
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.trackerFace = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.trackerFace,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetCamerasCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCameras
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCamerasRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 352
+    self.__sizes = [336]
+    self.__formats = [('<i i i I 64s 256s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCameras
+    self.iTotalCameras = int(0)
+    self.iInternalCameraId = int(0)
+    self.lSerialNumber = int(0)
+    self.cameraType = int(0)  # ES_MeasurementCameraType
+    self.cName = b''  # 64 bytes max
+    self.cComment = b''  # 256 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalCameras = packet_elements[0]
+    self.iInternalCameraId = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.cameraType = packet_elements[3]
+    self.cName = packet_elements[4]
+    self.cComment = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalCameras,)
+    packet_elements += (self.iInternalCameraId,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.cameraType,)
+    packet_elements += (self.cName,)
+    packet_elements += (self.cComment,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetCameraCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCamera
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCameraRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCamera
+    self.iInternalCameraId = int(0)
+    self.bMeasurementCameraIsMounted = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalCameraId = packet_elements[0]
+    self.bMeasurementCameraIsMounted = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalCameraId,)
+    packet_elements += (self.bMeasurementCameraIsMounted,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetMeasurementCameraModeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetMeasurementCameraMode
+    self.cameraMode = int(0)  # ES_MeasurementCameraMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.cameraMode = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.cameraMode,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetMeasurementCameraModeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetMeasurementCameraMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeasurementCameraModeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementCameraMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeasurementCameraModeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementCameraMode
+    self.cameraMode = int(0)  # ES_MeasurementCameraMode
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.cameraMode = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.cameraMode,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetProbesCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbes
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetProbesRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 356
+    self.__sizes = [340]
+    self.__formats = [('<i i i I i 64s 256s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbes
+    self.iTotalProbes = int(0)
+    self.iInternalProbeId = int(0)
+    self.lSerialNumber = int(0)
+    self.probeType = int(0)  # ES_ProbeType
+    self.iNumberOfFields = int(0)
+    self.cName = b''  # 64 bytes max
+    self.cComment = b''  # 256 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalProbes = packet_elements[0]
+    self.iInternalProbeId = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.probeType = packet_elements[3]
+    self.iNumberOfFields = packet_elements[4]
+    self.cName = packet_elements[5]
+    self.cComment = packet_elements[6]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalProbes,)
+    packet_elements += (self.iInternalProbeId,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.probeType,)
+    packet_elements += (self.iNumberOfFields,)
+    packet_elements += (self.cName,)
+    packet_elements += (self.cComment,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetProbeCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbe
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetProbeRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbe
+    self.iInternalProbeId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalProbeId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalProbeId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTipAdaptersCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipAdapters
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTipAdaptersRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 376
+    self.__sizes = [360]
+    self.__formats = [('<i i i i i I d d 64s 256s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipAdapters
+    self.iTotalTipAdapters = int(0)
+    self.iInternalTipAdapterId = int(0)
+    self.lAssemblyId = int(0)
+    self.lSerialNumberLowPart = int(0)
+    self.lSerialNumberHighPart = int(0)
+    self.tipType = int(0)  # ES_TipType
+    self.dRadius = float(0)
+    self.dLength = float(0)
+    self.cName = b''  # 64 bytes max
+    self.cComment = b''  # 256 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalTipAdapters = packet_elements[0]
+    self.iInternalTipAdapterId = packet_elements[1]
+    self.lAssemblyId = packet_elements[2]
+    self.lSerialNumberLowPart = packet_elements[3]
+    self.lSerialNumberHighPart = packet_elements[4]
+    self.tipType = packet_elements[5]
+    self.dRadius = packet_elements[6]
+    self.dLength = packet_elements[7]
+    self.cName = packet_elements[8]
+    self.cComment = packet_elements[9]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalTipAdapters,)
+    packet_elements += (self.iInternalTipAdapterId,)
+    packet_elements += (self.lAssemblyId,)
+    packet_elements += (self.lSerialNumberLowPart,)
+    packet_elements += (self.lSerialNumberHighPart,)
+    packet_elements += (self.tipType,)
+    packet_elements += (self.dRadius,)
+    packet_elements += (self.dLength,)
+    packet_elements += (self.cName,)
+    packet_elements += (self.cComment,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTipAdapterCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipAdapter
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTipAdapterRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipAdapter
+    self.iInternalTipAdapterId = int(0)
+    self.iTipAdapterInterface = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalTipAdapterId = packet_elements[0]
+    self.iTipAdapterInterface = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalTipAdapterId,)
+    packet_elements += (self.iTipAdapterInterface,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTCamToTrackerCompensationsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTCamToTrackerCompensations
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTCamToTrackerCompensationsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 360
+    self.__sizes = [344]
+    self.__formats = [('<i i i i i i 64s 256s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTCamToTrackerCompensations
+    self.iTotalCompensations = int(0)
+    self.iInternalTCamToTrackerCompensationId = int(0)
+    self.iInternalTrackerCompensationId = int(0)
+    self.iInternalCameraId = int(0)
+    self.bIsActive = int(0)
+    self.lTrackerSerialNumber = int(0)
+    self.cTCamToTrackerCompensationName = b''  # 64 bytes max
+    self.cTCamToTrackerCompensationComment = b''  # 256 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalCompensations = packet_elements[0]
+    self.iInternalTCamToTrackerCompensationId = packet_elements[1]
+    self.iInternalTrackerCompensationId = packet_elements[2]
+    self.iInternalCameraId = packet_elements[3]
+    self.bIsActive = packet_elements[4]
+    self.lTrackerSerialNumber = packet_elements[5]
+    self.cTCamToTrackerCompensationName = packet_elements[6]
+    self.cTCamToTrackerCompensationComment = packet_elements[7]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalCompensations,)
+    packet_elements += (self.iInternalTCamToTrackerCompensationId,)
+    packet_elements += (self.iInternalTrackerCompensationId,)
+    packet_elements += (self.iInternalCameraId,)
+    packet_elements += (self.bIsActive,)
+    packet_elements += (self.lTrackerSerialNumber,)
+    packet_elements += (self.cTCamToTrackerCompensationName,)
+    packet_elements += (self.cTCamToTrackerCompensationComment,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTCamToTrackerCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTCamToTrackerCompensation
+    self.iInternalTCamToTrackerCompensationId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalTCamToTrackerCompensationId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalTCamToTrackerCompensationId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTCamToTrackerCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTCamToTrackerCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTCamToTrackerCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTCamToTrackerCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTCamToTrackerCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTCamToTrackerCompensation
+    self.iInternalTCamToTrackerCompensationId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalTCamToTrackerCompensationId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalTCamToTrackerCompensationId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetProbeCompensationsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbeCompensations
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetProbeCompensationsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 364
+    self.__sizes = [348]
+    self.__formats = [('<i i i i i i i 64s 256s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbeCompensations
+    self.iTotalCompensations = int(0)
+    self.iInternalProbeCompensationId = int(0)
+    self.iInternalProbeId = int(0)
+    self.iFieldNumber = int(0)
+    self.bIsActive = int(0)
+    self.bMarkedForExport = int(0)
+    self.bPreliminary = int(0)
+    self.cProbeCompensationName = b''  # 64 bytes max
+    self.cProbeCompensationComment = b''  # 256 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalCompensations = packet_elements[0]
+    self.iInternalProbeCompensationId = packet_elements[1]
+    self.iInternalProbeId = packet_elements[2]
+    self.iFieldNumber = packet_elements[3]
+    self.bIsActive = packet_elements[4]
+    self.bMarkedForExport = packet_elements[5]
+    self.bPreliminary = packet_elements[6]
+    self.cProbeCompensationName = packet_elements[7]
+    self.cProbeCompensationComment = packet_elements[8]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalCompensations,)
+    packet_elements += (self.iInternalProbeCompensationId,)
+    packet_elements += (self.iInternalProbeId,)
+    packet_elements += (self.iFieldNumber,)
+    packet_elements += (self.bIsActive,)
+    packet_elements += (self.bMarkedForExport,)
+    packet_elements += (self.bPreliminary,)
+    packet_elements += (self.cProbeCompensationName,)
+    packet_elements += (self.cProbeCompensationComment,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetProbeCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbeCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetProbeCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetProbeCompensation
+    self.iInternalProbeCompensationId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalProbeCompensationId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalProbeCompensationId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetProbeCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetProbeCompensation
+    self.iInternalProbeCompensationId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalProbeCompensationId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalProbeCompensationId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetProbeCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetProbeCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTipToProbeCompensationsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipToProbeCompensations
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTipToProbeCompensationsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 360
+    self.__sizes = [344]
+    self.__formats = [('<i i i i i i 64s 256s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipToProbeCompensations
+    self.iTotalCompensations = int(0)
+    self.iInternalTipToProbeCompensationId = int(0)
+    self.iInternalTipAdapterId = int(0)
+    self.iTipAdapterInterface = int(0)
+    self.iInternalProbeCompensationId = int(0)
+    self.bMarkedForExport = int(0)
+    self.cTipToProbeCompensationName = b''  # 64 bytes max
+    self.cTipToProbeCompensationComment = b''  # 256 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalCompensations = packet_elements[0]
+    self.iInternalTipToProbeCompensationId = packet_elements[1]
+    self.iInternalTipAdapterId = packet_elements[2]
+    self.iTipAdapterInterface = packet_elements[3]
+    self.iInternalProbeCompensationId = packet_elements[4]
+    self.bMarkedForExport = packet_elements[5]
+    self.cTipToProbeCompensationName = packet_elements[6]
+    self.cTipToProbeCompensationComment = packet_elements[7]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalCompensations,)
+    packet_elements += (self.iInternalTipToProbeCompensationId,)
+    packet_elements += (self.iInternalTipAdapterId,)
+    packet_elements += (self.iTipAdapterInterface,)
+    packet_elements += (self.iInternalProbeCompensationId,)
+    packet_elements += (self.bMarkedForExport,)
+    packet_elements += (self.cTipToProbeCompensationName,)
+    packet_elements += (self.cTipToProbeCompensationComment,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTipToProbeCompensations2CT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipToProbeCompensations2
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTipToProbeCompensations2RT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 428
+    self.__sizes = [412]
+    self.__formats = [('<i i i i i i I 64s 256s 64s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipToProbeCompensations2
+    self.iTotalCompensations = int(0)
+    self.iInternalTipToProbeCompensationId = int(0)
+    self.iInternalTipAdapterId = int(0)
+    self.iTipAdapterInterface = int(0)
+    self.iInternalProbeCompensationId = int(0)
+    self.bMarkedForExport = int(0)
+    self.compensationType = int(0)  # ES_TipToProbeCompensationType
+    self.cTipToProbeCompensationName = b''  # 64 bytes max
+    self.cTipToProbeCompensationComment = b''  # 256 bytes max
+    self.cShankCompensationName = b''  # 64 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iTotalCompensations = packet_elements[0]
+    self.iInternalTipToProbeCompensationId = packet_elements[1]
+    self.iInternalTipAdapterId = packet_elements[2]
+    self.iTipAdapterInterface = packet_elements[3]
+    self.iInternalProbeCompensationId = packet_elements[4]
+    self.bMarkedForExport = packet_elements[5]
+    self.compensationType = packet_elements[6]
+    self.cTipToProbeCompensationName = packet_elements[7]
+    self.cTipToProbeCompensationComment = packet_elements[8]
+    self.cShankCompensationName = packet_elements[9]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iTotalCompensations,)
+    packet_elements += (self.iInternalTipToProbeCompensationId,)
+    packet_elements += (self.iInternalTipAdapterId,)
+    packet_elements += (self.iTipAdapterInterface,)
+    packet_elements += (self.iInternalProbeCompensationId,)
+    packet_elements += (self.bMarkedForExport,)
+    packet_elements += (self.compensationType,)
+    packet_elements += (self.cTipToProbeCompensationName,)
+    packet_elements += (self.cTipToProbeCompensationComment,)
+    packet_elements += (self.cShankCompensationName,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetTipToProbeCompensationCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipToProbeCompensation
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTipToProbeCompensationRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTipToProbeCompensation
+    self.iInternalTipToProbeCompensationId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalTipToProbeCompensationId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalTipToProbeCompensationId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ExternTriggerParamsT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [16]
+    self.__formats = [('<I I I i ')]
+    self.clockTransition = int(0)  # ES_ClockTransition
+    self.triggerMode = int(0)  # ES_TriggerMode
+    self.startSignal = int(0)  # ES_TriggerStartSignal
+    self.lMinimalTimeDelay = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.clockTransition = packet_elements[0]
+    self.triggerMode = packet_elements[1]
+    self.startSignal = packet_elements[2]
+    self.lMinimalTimeDelay = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    packet_elements = ()
+    packet_elements += (self.clockTransition,)
+    packet_elements += (self.triggerMode,)
+    packet_elements += (self.startSignal,)
+    packet_elements += (self.lMinimalTimeDelay,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetExternTriggerParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetExternTriggerParams
+    self.triggerParams = ExternTriggerParamsT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.triggerParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.triggerParams.pack()
+    return self.packet
+
+class SetExternTriggerParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetExternTriggerParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetExternTriggerParamsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetExternTriggerParams
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetExternTriggerParamsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetExternTriggerParams
+    self.triggerParams = ExternTriggerParamsT()
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet = self.triggerParams.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    self.packet += self.triggerParams.pack()
+    return self.packet
+
+class GetErrorEllipsoidCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 84
+    self.__sizes = [72]
+    self.__formats = [('<d d d d d d d d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetErrorEllipsoid
+    self.dCoord1 = float(0)
+    self.dCoord2 = float(0)
+    self.dCoord3 = float(0)
+    self.dStdDev1 = float(0)
+    self.dStdDev2 = float(0)
+    self.dStdDev3 = float(0)
+    self.dCovar12 = float(0)
+    self.dCovar13 = float(0)
+    self.dCovar23 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dCoord1 = packet_elements[0]
+    self.dCoord2 = packet_elements[1]
+    self.dCoord3 = packet_elements[2]
+    self.dStdDev1 = packet_elements[3]
+    self.dStdDev2 = packet_elements[4]
+    self.dStdDev3 = packet_elements[5]
+    self.dCovar12 = packet_elements[6]
+    self.dCovar13 = packet_elements[7]
+    self.dCovar23 = packet_elements[8]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dCoord1,)
+    packet_elements += (self.dCoord2,)
+    packet_elements += (self.dCoord3,)
+    packet_elements += (self.dStdDev1,)
+    packet_elements += (self.dStdDev2,)
+    packet_elements += (self.dStdDev3,)
+    packet_elements += (self.dCovar12,)
+    packet_elements += (self.dCovar13,)
+    packet_elements += (self.dCovar23,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetErrorEllipsoidRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 64
+    self.__sizes = [48]
+    self.__formats = [('<d d d d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetErrorEllipsoid
+    self.dStdDevX = float(0)
+    self.dStdDevY = float(0)
+    self.dStdDevZ = float(0)
+    self.dRotationAngleX = float(0)
+    self.dRotationAngleY = float(0)
+    self.dRotationAngleZ = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dStdDevX = packet_elements[0]
+    self.dStdDevY = packet_elements[1]
+    self.dStdDevZ = packet_elements[2]
+    self.dRotationAngleX = packet_elements[3]
+    self.dRotationAngleY = packet_elements[4]
+    self.dRotationAngleZ = packet_elements[5]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dStdDevX,)
+    packet_elements += (self.dStdDevY,)
+    packet_elements += (self.dStdDevZ,)
+    packet_elements += (self.dRotationAngleX,)
+    packet_elements += (self.dRotationAngleY,)
+    packet_elements += (self.dRotationAngleZ,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetMeasurementCameraInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementCameraInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeasurementCameraInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 160
+    self.__sizes = [144]
+    self.__formats = [('<i i i I 64s i i i i i d d i i d d i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementCameraInfo
+    self.iFirmwareMajorVersionNumber = int(0)
+    self.iFirmwareMinorVersionNumber = int(0)
+    self.lSerialNumber = int(0)
+    self.cameraType = int(0)  # ES_MeasurementCameraType
+    self.cName = b''  # 64 bytes max
+    self.lCompensationIdNumber = int(0)
+    self.lZoomSerialNumber = int(0)
+    self.lZoomAdjustmentIdNumber = int(0)
+    self.lZoom2DCompensationIdNumber = int(0)
+    self.lZoomProjCenterCompIdNumber = int(0)
+    self.dMaxDistance = float(0)
+    self.dMinDistance = float(0)
+    self.lNrOfPixelsX = int(0)
+    self.lNrOfPixelsY = int(0)
+    self.dPixelSizeX = float(0)
+    self.dPixelSizeY = float(0)
+    self.lMaxDataRate = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iFirmwareMajorVersionNumber = packet_elements[0]
+    self.iFirmwareMinorVersionNumber = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.cameraType = packet_elements[3]
+    self.cName = packet_elements[4]
+    self.lCompensationIdNumber = packet_elements[5]
+    self.lZoomSerialNumber = packet_elements[6]
+    self.lZoomAdjustmentIdNumber = packet_elements[7]
+    self.lZoom2DCompensationIdNumber = packet_elements[8]
+    self.lZoomProjCenterCompIdNumber = packet_elements[9]
+    self.dMaxDistance = packet_elements[10]
+    self.dMinDistance = packet_elements[11]
+    self.lNrOfPixelsX = packet_elements[12]
+    self.lNrOfPixelsY = packet_elements[13]
+    self.dPixelSizeX = packet_elements[14]
+    self.dPixelSizeY = packet_elements[15]
+    self.lMaxDataRate = packet_elements[16]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iFirmwareMajorVersionNumber,)
+    packet_elements += (self.iFirmwareMinorVersionNumber,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.cameraType,)
+    packet_elements += (self.cName,)
+    packet_elements += (self.lCompensationIdNumber,)
+    packet_elements += (self.lZoomSerialNumber,)
+    packet_elements += (self.lZoomAdjustmentIdNumber,)
+    packet_elements += (self.lZoom2DCompensationIdNumber,)
+    packet_elements += (self.lZoomProjCenterCompIdNumber,)
+    packet_elements += (self.dMaxDistance,)
+    packet_elements += (self.dMinDistance,)
+    packet_elements += (self.lNrOfPixelsX,)
+    packet_elements += (self.lNrOfPixelsY,)
+    packet_elements += (self.dPixelSizeX,)
+    packet_elements += (self.dPixelSizeY,)
+    packet_elements += (self.lMaxDataRate,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetMeasurementProbeInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementProbeInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeasurementProbeInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 72
+    self.__sizes = [56]
+    self.__formats = [('<i i i I i i I i I i i i i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeasurementProbeInfo
+    self.iFirmwareMajorVersionNumber = int(0)
+    self.iFirmwareMinorVersionNumber = int(0)
+    self.lSerialNumber = int(0)
+    self.probeType = int(0)  # ES_ProbeType
+    self.lCompensationIdNumber = int(0)
+    self.lActiveField = int(0)
+    self.connectionType = int(0)  # ES_ProbeConnectionType
+    self.lNumberOfTipAdapters = int(0)
+    self.probeButtonType = int(0)  # ES_ProbeButtonType
+    self.lNumberOfFields = int(0)
+    self.bHasWideAngleReceiver = int(0)
+    self.lNumberOfTipDataSets = int(0)
+    self.lNumberOfMelodies = int(0)
+    self.lNumberOfLoudnesSteps = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iFirmwareMajorVersionNumber = packet_elements[0]
+    self.iFirmwareMinorVersionNumber = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.probeType = packet_elements[3]
+    self.lCompensationIdNumber = packet_elements[4]
+    self.lActiveField = packet_elements[5]
+    self.connectionType = packet_elements[6]
+    self.lNumberOfTipAdapters = packet_elements[7]
+    self.probeButtonType = packet_elements[8]
+    self.lNumberOfFields = packet_elements[9]
+    self.bHasWideAngleReceiver = packet_elements[10]
+    self.lNumberOfTipDataSets = packet_elements[11]
+    self.lNumberOfMelodies = packet_elements[12]
+    self.lNumberOfLoudnesSteps = packet_elements[13]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iFirmwareMajorVersionNumber,)
+    packet_elements += (self.iFirmwareMinorVersionNumber,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.probeType,)
+    packet_elements += (self.lCompensationIdNumber,)
+    packet_elements += (self.lActiveField,)
+    packet_elements += (self.connectionType,)
+    packet_elements += (self.lNumberOfTipAdapters,)
+    packet_elements += (self.probeButtonType,)
+    packet_elements += (self.lNumberOfFields,)
+    packet_elements += (self.bHasWideAngleReceiver,)
+    packet_elements += (self.lNumberOfTipDataSets,)
+    packet_elements += (self.lNumberOfMelodies,)
+    packet_elements += (self.lNumberOfLoudnesSteps,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetLongSystemParamCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 20
+    self.__sizes = [8]
+    self.__formats = [('<I i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetLongSystemParameter
+    self.systemParam = int(0)  # ES_SystemParameter
+    self.lParameter = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.systemParam = packet_elements[0]
+    self.lParameter = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.systemParam,)
+    packet_elements += (self.lParameter,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetLongSystemParamRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetLongSystemParameter
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetLongSystemParamCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetLongSystemParameter
+    self.systemParam = int(0)  # ES_SystemParameter
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.systemParam = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.systemParam,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetLongSystemParamRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<I i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetLongSystemParameter
+    self.systemParam = int(0)  # ES_SystemParameter
+    self.lParameter = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.systemParam = packet_elements[0]
+    self.lParameter = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.systemParam,)
+    packet_elements += (self.lParameter,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetCurrentPrismPositionCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCurrentPrismPosition
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetCurrentPrismPositionRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 40
+    self.__sizes = [24]
+    self.__formats = [('<d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetCurrentPrismPosition
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetObjectTemperatureCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetObjectTemperature
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetObjectTemperatureRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [8]
+    self.__formats = [('<d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetObjectTemperature
+    self.dObjectTemperature = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dObjectTemperature = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dObjectTemperature,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ClearCommandQueueCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearCommandQueue
+    self.clearQueueType = int(0)  # ES_ClearCommandQueueType
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.clearQueueType = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.clearQueueType,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class ClearCommandQueueRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_ClearCommandQueue
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTriggerBoardInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTriggerBoardInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetTriggerBoardInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 32
+    self.__sizes = [16]
+    self.__formats = [('<I i i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetTriggerBoardInfo
+    self.triggerCardType = int(0)  # ES_TriggerCardType
+    self.lFPGAVersion = int(0)
+    self.lMaxTriggerFrequency = int(0)
+    self.lErrorCode = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.triggerCardType = packet_elements[0]
+    self.lFPGAVersion = packet_elements[1]
+    self.lMaxTriggerFrequency = packet_elements[2]
+    self.lErrorCode = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.triggerCardType,)
+    packet_elements += (self.lFPGAVersion,)
+    packet_elements += (self.lMaxTriggerFrequency,)
+    packet_elements += (self.lErrorCode,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetOverviewCameraInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetOverviewCameraInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetOverviewCameraInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 120
+    self.__sizes = [104]
+    self.__formats = [('<I 64s i d d d i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetOverviewCameraInfo
+    self.cameraType = int(0)  # ES_OverviewCameraType
+    self.cCameraName = b''  # 64 bytes max
+    self.bIsColorCamera = int(0)
+    self.dFocalLength = float(0)
+    self.dHorizontalChipSize = float(0)
+    self.dVerticalChipSize = float(0)
+    self.bMirrorImageHz = int(0)
+    self.bMirrorImageVt = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.cameraType = packet_elements[0]
+    self.cCameraName = packet_elements[1]
+    self.bIsColorCamera = packet_elements[2]
+    self.dFocalLength = packet_elements[3]
+    self.dHorizontalChipSize = packet_elements[4]
+    self.dVerticalChipSize = packet_elements[5]
+    self.bMirrorImageHz = packet_elements[6]
+    self.bMirrorImageVt = packet_elements[7]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.cameraType,)
+    packet_elements += (self.cCameraName,)
+    packet_elements += (self.bIsColorCamera,)
+    packet_elements += (self.dFocalLength,)
+    packet_elements += (self.dHorizontalChipSize,)
+    packet_elements += (self.dVerticalChipSize,)
+    packet_elements += (self.bMirrorImageHz,)
+    packet_elements += (self.bMirrorImageVt,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetDoubleSystemParamCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<I ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetDoubleSystemParameter
+    self.systemParam = int(0)  # ES_SystemParameter
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.systemParam = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.systemParam,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetDoubleSystemParamRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 28
+    self.__sizes = [12]
+    self.__formats = [('<I d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetDoubleSystemParameter
+    self.systemParam = int(0)  # ES_SystemParameter
+    self.dParameter = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.systemParam = packet_elements[0]
+    self.dParameter = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.systemParam,)
+    packet_elements += (self.dParameter,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetDoubleSystemParamCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 24
+    self.__sizes = [12]
+    self.__formats = [('<I d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetDoubleSystemParameter
+    self.systemParam = int(0)  # ES_SystemParameter
+    self.dParameter = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.systemParam = packet_elements[0]
+    self.dParameter = packet_elements[1]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.systemParam,)
+    packet_elements += (self.dParameter,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetDoubleSystemParamRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetDoubleSystemParameter
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class RestoreStartupConditionsCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_RestoreStartupConditions
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class RestoreStartupConditionsRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_RestoreStartupConditions
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GoAndMeasureCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 36
+    self.__sizes = [24]
+    self.__formats = [('<d d d ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoAndMeasure
+    self.dVal1 = float(0)
+    self.dVal2 = float(0)
+    self.dVal3 = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.dVal1 = packet_elements[0]
+    self.dVal2 = packet_elements[1]
+    self.dVal3 = packet_elements[2]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.dVal1,)
+    packet_elements += (self.dVal2,)
+    packet_elements += (self.dVal3,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GoAndMeasureRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GoAndMeasure
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class SetTipAdapterCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = [4]
+    self.__formats = [('<i ')]
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTipAdapter
+    self.iInternalTipAdapterId = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.iInternalTipAdapterId = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.iInternalTipAdapterId,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SetTipAdapterRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SetTipAdapter
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeteoStationInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeteoStationInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetMeteoStationInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 92
+    self.__sizes = [76]
+    self.__formats = [('<I 64s i i ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetMeteoStationInfo
+    self.meteoStationType = int(0)  # ES_MeteoStationType
+    self.cIdentifier = b''  # 64 bytes max
+    self.iFirmwareMajorVersionNumber = int(0)
+    self.iFirmwareMinorVersionNumber = int(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.meteoStationType = packet_elements[0]
+    self.cIdentifier = packet_elements[1]
+    self.iFirmwareMajorVersionNumber = packet_elements[2]
+    self.iFirmwareMinorVersionNumber = packet_elements[3]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.meteoStationType,)
+    packet_elements += (self.cIdentifier,)
+    packet_elements += (self.iFirmwareMajorVersionNumber,)
+    packet_elements += (self.iFirmwareMinorVersionNumber,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetATInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetATInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetATInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 184
+    self.__sizes = [168]
+    self.__formats = [('<I 64s i i i i i i i i i i I I i d d d d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetATInfo
+    self.trackerType = int(0)  # ES_LTSensorType
+    self.cTrackerName = b''  # 64 bytes max
+    self.lSerialNumber = int(0)
+    self.lMajorFirmwareVersion = int(0)
+    self.lMinorFirmwareVersion = int(0)
+    self.lProcessorBoardFWBuildNumber = int(0)
+    self.lSensorBoardFWBuildNumber = int(0)
+    self.lMajorOSVersion = int(0)
+    self.lMinorOSVersion = int(0)
+    self.lMajorServerSoftwareVersion = int(0)
+    self.lMinorServerSoftwareVersion = int(0)
+    self.lServerSoftwareBuildNumber = int(0)
+    self.wlanType = int(0)  # ES_WLANType
+    self.xscaleType = int(0)  # ES_TPMicroProcessorType
+    self.lMinMeasureTime = int(0)
+    self.dMinDistance = float(0)
+    self.dMaxDistance = float(0)
+    self.dStdDevDistOffsetADM = float(0)
+    self.dStdDevAngleConst = float(0)
+    self.dStdDevAngleOffset = float(0)
+    self.dStdDevAngleFactor = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.trackerType = packet_elements[0]
+    self.cTrackerName = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.lMajorFirmwareVersion = packet_elements[3]
+    self.lMinorFirmwareVersion = packet_elements[4]
+    self.lProcessorBoardFWBuildNumber = packet_elements[5]
+    self.lSensorBoardFWBuildNumber = packet_elements[6]
+    self.lMajorOSVersion = packet_elements[7]
+    self.lMinorOSVersion = packet_elements[8]
+    self.lMajorServerSoftwareVersion = packet_elements[9]
+    self.lMinorServerSoftwareVersion = packet_elements[10]
+    self.lServerSoftwareBuildNumber = packet_elements[11]
+    self.wlanType = packet_elements[12]
+    self.xscaleType = packet_elements[13]
+    self.lMinMeasureTime = packet_elements[14]
+    self.dMinDistance = packet_elements[15]
+    self.dMaxDistance = packet_elements[16]
+    self.dStdDevDistOffsetADM = packet_elements[17]
+    self.dStdDevAngleConst = packet_elements[18]
+    self.dStdDevAngleOffset = packet_elements[19]
+    self.dStdDevAngleFactor = packet_elements[20]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.trackerType,)
+    packet_elements += (self.cTrackerName,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.lMajorFirmwareVersion,)
+    packet_elements += (self.lMinorFirmwareVersion,)
+    packet_elements += (self.lProcessorBoardFWBuildNumber,)
+    packet_elements += (self.lSensorBoardFWBuildNumber,)
+    packet_elements += (self.lMajorOSVersion,)
+    packet_elements += (self.lMinorOSVersion,)
+    packet_elements += (self.lMajorServerSoftwareVersion,)
+    packet_elements += (self.lMinorServerSoftwareVersion,)
+    packet_elements += (self.lServerSoftwareBuildNumber,)
+    packet_elements += (self.wlanType,)
+    packet_elements += (self.xscaleType,)
+    packet_elements += (self.lMinMeasureTime,)
+    packet_elements += (self.dMinDistance,)
+    packet_elements += (self.dMaxDistance,)
+    packet_elements += (self.dStdDevDistOffsetADM,)
+    packet_elements += (self.dStdDevAngleConst,)
+    packet_elements += (self.dStdDevAngleOffset,)
+    packet_elements += (self.dStdDevAngleFactor,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetAT4xxInfoCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetAT4xxInfo
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetAT4xxInfoRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 184
+    self.__sizes = [168]
+    self.__formats = [('<I 64s i i i i i i i i i i I I i d d d d d d ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetAT4xxInfo
+    self.trackerType = int(0)  # ES_LTSensorType
+    self.cTrackerName = b''  # 64 bytes max
+    self.lSerialNumber = int(0)
+    self.lMajorFirmwareVersion = int(0)
+    self.lMinorFirmwareVersion = int(0)
+    self.lProcessorBoardFWBuildNumber = int(0)
+    self.lSensorBoardFWBuildNumber = int(0)
+    self.lMajorOSVersion = int(0)
+    self.lMinorOSVersion = int(0)
+    self.lMajorServerSoftwareVersion = int(0)
+    self.lMinorServerSoftwareVersion = int(0)
+    self.lServerSoftwareBuildNumber = int(0)
+    self.wlanType = int(0)  # ES_WLANType
+    self.xscaleType = int(0)  # ES_TPMicroProcessorType
+    self.lMinMeasureTime = int(0)
+    self.dMinDistance = float(0)
+    self.dMaxDistance = float(0)
+    self.dStdDevDistOffsetADM = float(0)
+    self.dStdDevAngleConst = float(0)
+    self.dStdDevAngleOffset = float(0)
+    self.dStdDevAngleFactor = float(0)
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.trackerType = packet_elements[0]
+    self.cTrackerName = packet_elements[1]
+    self.lSerialNumber = packet_elements[2]
+    self.lMajorFirmwareVersion = packet_elements[3]
+    self.lMinorFirmwareVersion = packet_elements[4]
+    self.lProcessorBoardFWBuildNumber = packet_elements[5]
+    self.lSensorBoardFWBuildNumber = packet_elements[6]
+    self.lMajorOSVersion = packet_elements[7]
+    self.lMinorOSVersion = packet_elements[8]
+    self.lMajorServerSoftwareVersion = packet_elements[9]
+    self.lMinorServerSoftwareVersion = packet_elements[10]
+    self.lServerSoftwareBuildNumber = packet_elements[11]
+    self.wlanType = packet_elements[12]
+    self.xscaleType = packet_elements[13]
+    self.lMinMeasureTime = packet_elements[14]
+    self.dMinDistance = packet_elements[15]
+    self.dMaxDistance = packet_elements[16]
+    self.dStdDevDistOffsetADM = packet_elements[17]
+    self.dStdDevAngleConst = packet_elements[18]
+    self.dStdDevAngleOffset = packet_elements[19]
+    self.dStdDevAngleFactor = packet_elements[20]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.trackerType,)
+    packet_elements += (self.cTrackerName,)
+    packet_elements += (self.lSerialNumber,)
+    packet_elements += (self.lMajorFirmwareVersion,)
+    packet_elements += (self.lMinorFirmwareVersion,)
+    packet_elements += (self.lProcessorBoardFWBuildNumber,)
+    packet_elements += (self.lSensorBoardFWBuildNumber,)
+    packet_elements += (self.lMajorOSVersion,)
+    packet_elements += (self.lMinorOSVersion,)
+    packet_elements += (self.lMajorServerSoftwareVersion,)
+    packet_elements += (self.lMinorServerSoftwareVersion,)
+    packet_elements += (self.lServerSoftwareBuildNumber,)
+    packet_elements += (self.wlanType,)
+    packet_elements += (self.xscaleType,)
+    packet_elements += (self.lMinMeasureTime,)
+    packet_elements += (self.dMinDistance,)
+    packet_elements += (self.dMaxDistance,)
+    packet_elements += (self.dStdDevDistOffsetADM,)
+    packet_elements += (self.dStdDevAngleConst,)
+    packet_elements += (self.dStdDevAngleOffset,)
+    packet_elements += (self.dStdDevAngleFactor,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class GetSystemSoftwareVersionCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSystemSoftwareVersion
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class GetSystemSoftwareVersionRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 80
+    self.__sizes = [64]
+    self.__formats = [('<64s ')]
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_GetSystemSoftwareVersion
+    self.cSoftwareVersion = b''  # 64 bytes max
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    packet_elements = struct.Struct(self.__formats[0]).unpack(packet[:self.__sizes[0]])
+    self.cSoftwareVersion = packet_elements[0]
+    return packet[self.__sizes[0]:]
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    packet_elements = ()
+    packet_elements += (self.cSoftwareVersion,)
+    self.packet += struct.Struct(self.__formats[0]).pack(*packet_elements)
+    return self.packet
+
+class SystemPowerDownCT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 12
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandCT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SystemPowerDown
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+class SystemPowerDownRT(object):
+  def __init__(self):
+    self.packet = b''
+    self.__packet_size = 16
+    self.__sizes = []
+    self.__formats = []
+    self.packetInfo = BasicCommandRT()
+    self.packetInfo.packetHeader.lPacketSize = self.__packet_size
+    self.packetInfo.packetHeader.type = ES_DT_Command
+    self.packetInfo.command = ES_C_SystemPowerDown
+
+  def unpack(self, packet):
+    self.packet = packet
+    packet = self.packetInfo.unpack(packet)
+    return packet
+
+  def pack(self):
+    self.packet = b''
+    self.packet += self.packetInfo.pack()
+    return self.packet
+
+
+def packetType(packet):
+  attributes = dir(packet)
+  if 'packetHeader' in attributes:
+    return packet.packetHeader.type
+  elif 'packetInfo' in attributes:
+    return packetType(packet.packetInfo)
+  else:
+    return None
+
+    
+class PacketFactory(object):
+  def packet(self, data, return_type=True):
+    packet_header = PacketHeaderT()
+    packet_header.unpack(data)
+    if return_type:
+      packet_info = BasicCommandRT()
+    else:
+      packet_info = BasicCommandCT()
+    packet = None
+    if packet_header.type == ES_DT_Command:
+      packet_info.unpack(data)
+    if False:
+      pass
+    elif packet_header.type == ES_DT_NivelResult:
+      packet = NivelResultT()
+    elif packet_header.type == ES_DT_ReflectorPosResult:
+      packet = ReflectorPosResultT()
+    elif packet_header.type == ES_DT_SingleMeasResult:
+      packet = SingleMeasResultT()
+    elif packet_header.type == ES_DT_SingleMeasResult2:
+      packet = SingleMeasResult2T()
+    elif packet_header.type == ES_DT_SystemStatusChange:
+      packet = SystemStatusChangeT()
+    elif packet_header.type == ES_DT_Error:
+      packet = ErrorResponseT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_Initialize:
+      if return_type:
+        packet = InitializeRT()
+      else:
+        packet = InitializeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ReleaseMotors:
+      if return_type:
+        packet = ReleaseMotorsRT()
+      else:
+        packet = ReleaseMotorsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ActivateCameraView:
+      if return_type:
+        packet = ActivateCameraViewRT()
+      else:
+        packet = ActivateCameraViewCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_Park:
+      if return_type:
+        packet = ParkRT()
+      else:
+        packet = ParkCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GoBirdBath:
+      if return_type:
+        packet = GoBirdBathRT()
+      else:
+        packet = GoBirdBathCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GoBirdBath2:
+      if return_type:
+        packet = GoBirdBath2RT()
+      else:
+        packet = GoBirdBath2CT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ChangeFace:
+      if return_type:
+        packet = ChangeFaceRT()
+      else:
+        packet = ChangeFaceCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_StartNivelMeasurement:
+      if return_type:
+        packet = StartNivelMeasurementRT()
+      else:
+        packet = StartNivelMeasurementCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_StartMeasurement:
+      if return_type:
+        packet = StartMeasurementRT()
+      else:
+        packet = StartMeasurementCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_StopMeasurement:
+      if return_type:
+        packet = StopMeasurementRT()
+      else:
+        packet = StopMeasurementCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ExitApplication:
+      if return_type:
+        packet = ExitApplicationRT()
+      else:
+        packet = ExitApplicationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GoLastMeasuredPoint:
+      if return_type:
+        packet = GoLastMeasuredPointRT()
+      else:
+        packet = GoLastMeasuredPointCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SwitchLaser:
+      if return_type:
+        packet = SwitchLaserRT()
+      else:
+        packet = SwitchLaserCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_FindReflector:
+      if return_type:
+        packet = FindReflectorRT()
+      else:
+        packet = FindReflectorCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetCoordinateSystemType:
+      if return_type:
+        packet = SetCoordinateSystemTypeRT()
+      else:
+        packet = SetCoordinateSystemTypeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCoordinateSystemType:
+      if return_type:
+        packet = GetCoordinateSystemTypeRT()
+      else:
+        packet = GetCoordinateSystemTypeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetTemperatureRange:
+      if return_type:
+        packet = SetTemperatureRangeRT()
+      else:
+        packet = SetTemperatureRangeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTemperatureRange:
+      if return_type:
+        packet = GetTemperatureRangeRT()
+      else:
+        packet = GetTemperatureRangeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetMeasurementMode:
+      if return_type:
+        packet = SetMeasurementModeRT()
+      else:
+        packet = SetMeasurementModeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetMeasurementMode:
+      if return_type:
+        packet = GetMeasurementModeRT()
+      else:
+        packet = GetMeasurementModeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetSearchParams:
+      if return_type:
+        packet = SetSearchParamsRT()
+      else:
+        packet = SetSearchParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetSearchParams:
+      if return_type:
+        packet = GetSearchParamsRT()
+      else:
+        packet = GetSearchParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetAdmParams:
+      if return_type:
+        packet = SetAdmParamsRT()
+      else:
+        packet = SetAdmParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetAdmParams:
+      if return_type:
+        packet = GetAdmParamsRT()
+      else:
+        packet = GetAdmParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetStationaryModeParams:
+      if return_type:
+        packet = SetStationaryModeParamsRT()
+      else:
+        packet = SetStationaryModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetStationaryModeParams:
+      if return_type:
+        packet = GetStationaryModeParamsRT()
+      else:
+        packet = GetStationaryModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetContinuousTimeModeParams:
+      if return_type:
+        packet = SetContinuousTimeModeParamsRT()
+      else:
+        packet = SetContinuousTimeModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetContinuousTimeModeParams:
+      if return_type:
+        packet = GetContinuousTimeModeParamsRT()
+      else:
+        packet = GetContinuousTimeModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetContinuousDistanceModeParams:
+      if return_type:
+        packet = SetContinuousDistanceModeParamsRT()
+      else:
+        packet = SetContinuousDistanceModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetContinuousDistanceModeParams:
+      if return_type:
+        packet = GetContinuousDistanceModeParamsRT()
+      else:
+        packet = GetContinuousDistanceModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetSphereCenterModeParams:
+      if return_type:
+        packet = SetSphereCenterModeParamsRT()
+      else:
+        packet = SetSphereCenterModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetSphereCenterModeParams:
+      if return_type:
+        packet = GetSphereCenterModeParamsRT()
+      else:
+        packet = GetSphereCenterModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetCircleCenterModeParams:
+      if return_type:
+        packet = SetCircleCenterModeParamsRT()
+      else:
+        packet = SetCircleCenterModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCircleCenterModeParams:
+      if return_type:
+        packet = GetCircleCenterModeParamsRT()
+      else:
+        packet = GetCircleCenterModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetGridModeParams:
+      if return_type:
+        packet = SetGridModeParamsRT()
+      else:
+        packet = SetGridModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetGridModeParams:
+      if return_type:
+        packet = GetGridModeParamsRT()
+      else:
+        packet = GetGridModeParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetSystemSettings:
+      if return_type:
+        packet = SetSystemSettingsRT()
+      else:
+        packet = SetSystemSettingsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetSystemSettings:
+      if return_type:
+        packet = GetSystemSettingsRT()
+      else:
+        packet = GetSystemSettingsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetUnits:
+      if return_type:
+        packet = SetUnitsRT()
+      else:
+        packet = SetUnitsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetUnits:
+      if return_type:
+        packet = GetUnitsRT()
+      else:
+        packet = GetUnitsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetSystemStatus:
+      if return_type:
+        packet = GetSystemStatusRT()
+      else:
+        packet = GetSystemStatusCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetMeasurementStatusInfo:
+      if return_type:
+        packet = GetMeasurementStatusInfoRT()
+      else:
+        packet = GetMeasurementStatusInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTrackerStatus:
+      if return_type:
+        packet = GetTrackerStatusRT()
+      else:
+        packet = GetTrackerStatusCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetReflector:
+      if return_type:
+        packet = SetReflectorRT()
+      else:
+        packet = SetReflectorCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetReflectors:
+      if return_type:
+        packet = GetReflectorsRT()
+      else:
+        packet = GetReflectorsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetReflector:
+      if return_type:
+        packet = GetReflectorRT()
+      else:
+        packet = GetReflectorCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetEnvironmentParams:
+      if return_type:
+        packet = SetEnvironmentParamsRT()
+      else:
+        packet = SetEnvironmentParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetEnvironmentParams:
+      if return_type:
+        packet = GetEnvironmentParamsRT()
+      else:
+        packet = GetEnvironmentParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetRefractionParams:
+      if return_type:
+        packet = SetRefractionParamsRT()
+      else:
+        packet = SetRefractionParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetRefractionParams:
+      if return_type:
+        packet = GetRefractionParamsRT()
+      else:
+        packet = GetRefractionParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetStationOrientationParams:
+      if return_type:
+        packet = SetStationOrientationParamsRT()
+      else:
+        packet = SetStationOrientationParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetStationOrientationParams:
+      if return_type:
+        packet = GetStationOrientationParamsRT()
+      else:
+        packet = GetStationOrientationParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetTransformationParams:
+      if return_type:
+        packet = SetTransformationParamsRT()
+      else:
+        packet = SetTransformationParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTransformationParams:
+      if return_type:
+        packet = GetTransformationParamsRT()
+      else:
+        packet = GetTransformationParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetBoxRegionParams:
+      if return_type:
+        packet = SetBoxRegionParamsRT()
+      else:
+        packet = SetBoxRegionParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetBoxRegionParams:
+      if return_type:
+        packet = GetBoxRegionParamsRT()
+      else:
+        packet = GetBoxRegionParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetSphereRegionParams:
+      if return_type:
+        packet = SetSphereRegionParamsRT()
+      else:
+        packet = SetSphereRegionParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetSphereRegionParams:
+      if return_type:
+        packet = GetSphereRegionParamsRT()
+      else:
+        packet = GetSphereRegionParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GoPosition:
+      if return_type:
+        packet = GoPositionRT()
+      else:
+        packet = GoPositionCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_LookForTarget:
+      if return_type:
+        packet = LookForTargetRT()
+      else:
+        packet = LookForTargetCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetDirection:
+      if return_type:
+        packet = GetDirectionRT()
+      else:
+        packet = GetDirectionCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GoPositionHVD:
+      if return_type:
+        packet = GoPositionHVDRT()
+      else:
+        packet = GoPositionHVDCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_PointLaser:
+      if return_type:
+        packet = PointLaserRT()
+      else:
+        packet = PointLaserCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_PositionRelativeHV:
+      if return_type:
+        packet = PositionRelativeHVRT()
+      else:
+        packet = PositionRelativeHVCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_PointLaserHVD:
+      if return_type:
+        packet = PointLaserHVDRT()
+      else:
+        packet = PointLaserHVDCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_MoveHV:
+      if return_type:
+        packet = MoveHVRT()
+      else:
+        packet = MoveHVCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GoNivelPosition:
+      if return_type:
+        packet = GoNivelPositionRT()
+      else:
+        packet = GoNivelPositionCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_CallOrientToGravity:
+      if return_type:
+        packet = CallOrientToGravityRT()
+      else:
+        packet = CallOrientToGravityCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_CallIntermediateCompensation:
+      if return_type:
+        packet = CallIntermediateCompensationRT()
+      else:
+        packet = CallIntermediateCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_CallTransformation:
+      if return_type:
+        packet = CallTransformationRT()
+      else:
+        packet = CallTransformationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetTransformationInputParams:
+      if return_type:
+        packet = SetTransformationInputParamsRT()
+      else:
+        packet = SetTransformationInputParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTransformationInputParams:
+      if return_type:
+        packet = GetTransformationInputParamsRT()
+      else:
+        packet = GetTransformationInputParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ClearTransformationNominalPointList:
+      if return_type:
+        packet = ClearTransformationNominalPointListRT()
+      else:
+        packet = ClearTransformationNominalPointListCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ClearTransformationActualPointList:
+      if return_type:
+        packet = ClearTransformationActualPointListRT()
+      else:
+        packet = ClearTransformationActualPointListCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_AddTransformationNominalPoint:
+      if return_type:
+        packet = AddTransformationNominalPointRT()
+      else:
+        packet = AddTransformationNominalPointCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_AddTransformationActualPoint:
+      if return_type:
+        packet = AddTransformationActualPointRT()
+      else:
+        packet = AddTransformationActualPointCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTransformedPoints:
+      if return_type:
+        packet = GetTransformedPointsRT()
+      else:
+        packet = GetTransformedPointsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ClearDrivePointList:
+      if return_type:
+        packet = ClearDrivePointListRT()
+      else:
+        packet = ClearDrivePointListCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_AddDrivePoint:
+      if return_type:
+        packet = AddDrivePointRT()
+      else:
+        packet = AddDrivePointCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetCompensation:
+      if return_type:
+        packet = SetCompensationRT()
+      else:
+        packet = SetCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCompensation:
+      if return_type:
+        packet = GetCompensationRT()
+      else:
+        packet = GetCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCompensations:
+      if return_type:
+        packet = GetCompensationsRT()
+      else:
+        packet = GetCompensationsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCompensations2:
+      if return_type:
+        packet = GetCompensations2RT()
+      else:
+        packet = GetCompensations2CT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetStatisticMode:
+      if return_type:
+        packet = SetStatisticModeRT()
+      else:
+        packet = SetStatisticModeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetStatisticMode:
+      if return_type:
+        packet = GetStatisticModeRT()
+      else:
+        packet = GetStatisticModeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetCameraParams:
+      if return_type:
+        packet = SetCameraParamsRT()
+      else:
+        packet = SetCameraParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCameraParams:
+      if return_type:
+        packet = GetCameraParamsRT()
+      else:
+        packet = GetCameraParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetStillImage:
+      if return_type:
+        packet = GetStillImageRT()
+      else:
+        packet = GetStillImageCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_CheckBirdBath:
+      if return_type:
+        packet = CheckBirdBathRT()
+      else:
+        packet = CheckBirdBathCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTrackerDiagnostics:
+      if return_type:
+        packet = GetTrackerDiagnosticsRT()
+      else:
+        packet = GetTrackerDiagnosticsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetADMInfo:
+      if return_type:
+        packet = GetADMInfoRT()
+      else:
+        packet = GetADMInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetADMInfo2:
+      if return_type:
+        packet = GetADMInfo2RT()
+      else:
+        packet = GetADMInfo2CT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetNivelInfo:
+      if return_type:
+        packet = GetNivelInfoRT()
+      else:
+        packet = GetNivelInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetNivelInfo2:
+      if return_type:
+        packet = GetNivelInfo2RT()
+      else:
+        packet = GetNivelInfo2CT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTPInfo:
+      if return_type:
+        packet = GetTPInfoRT()
+      else:
+        packet = GetTPInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTrackerInfo:
+      if return_type:
+        packet = GetTrackerInfoRT()
+      else:
+        packet = GetTrackerInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetATRInfo:
+      if return_type:
+        packet = GetATRInfoRT()
+      else:
+        packet = GetATRInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetLaserOnTimer:
+      if return_type:
+        packet = SetLaserOnTimerRT()
+      else:
+        packet = SetLaserOnTimerCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetLaserOnTimer:
+      if return_type:
+        packet = GetLaserOnTimerRT()
+      else:
+        packet = GetLaserOnTimerCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ConvertDisplayCoordinates:
+      if return_type:
+        packet = ConvertDisplayCoordinatesRT()
+      else:
+        packet = ConvertDisplayCoordinatesCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetTriggerSource:
+      if return_type:
+        packet = SetTriggerSourceRT()
+      else:
+        packet = SetTriggerSourceCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTriggerSource:
+      if return_type:
+        packet = GetTriggerSourceRT()
+      else:
+        packet = GetTriggerSourceCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetFace:
+      if return_type:
+        packet = GetFaceRT()
+      else:
+        packet = GetFaceCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCameras:
+      if return_type:
+        packet = GetCamerasRT()
+      else:
+        packet = GetCamerasCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCamera:
+      if return_type:
+        packet = GetCameraRT()
+      else:
+        packet = GetCameraCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetMeasurementCameraMode:
+      if return_type:
+        packet = SetMeasurementCameraModeRT()
+      else:
+        packet = SetMeasurementCameraModeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetMeasurementCameraMode:
+      if return_type:
+        packet = GetMeasurementCameraModeRT()
+      else:
+        packet = GetMeasurementCameraModeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetProbes:
+      if return_type:
+        packet = GetProbesRT()
+      else:
+        packet = GetProbesCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetProbe:
+      if return_type:
+        packet = GetProbeRT()
+      else:
+        packet = GetProbeCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTipAdapters:
+      if return_type:
+        packet = GetTipAdaptersRT()
+      else:
+        packet = GetTipAdaptersCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTipAdapter:
+      if return_type:
+        packet = GetTipAdapterRT()
+      else:
+        packet = GetTipAdapterCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTCamToTrackerCompensations:
+      if return_type:
+        packet = GetTCamToTrackerCompensationsRT()
+      else:
+        packet = GetTCamToTrackerCompensationsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetTCamToTrackerCompensation:
+      if return_type:
+        packet = SetTCamToTrackerCompensationRT()
+      else:
+        packet = SetTCamToTrackerCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTCamToTrackerCompensation:
+      if return_type:
+        packet = GetTCamToTrackerCompensationRT()
+      else:
+        packet = GetTCamToTrackerCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetProbeCompensations:
+      if return_type:
+        packet = GetProbeCompensationsRT()
+      else:
+        packet = GetProbeCompensationsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetProbeCompensation:
+      if return_type:
+        packet = GetProbeCompensationRT()
+      else:
+        packet = GetProbeCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetProbeCompensation:
+      if return_type:
+        packet = SetProbeCompensationRT()
+      else:
+        packet = SetProbeCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTipToProbeCompensations:
+      if return_type:
+        packet = GetTipToProbeCompensationsRT()
+      else:
+        packet = GetTipToProbeCompensationsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTipToProbeCompensations2:
+      if return_type:
+        packet = GetTipToProbeCompensations2RT()
+      else:
+        packet = GetTipToProbeCompensations2CT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTipToProbeCompensation:
+      if return_type:
+        packet = GetTipToProbeCompensationRT()
+      else:
+        packet = GetTipToProbeCompensationCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetExternTriggerParams:
+      if return_type:
+        packet = SetExternTriggerParamsRT()
+      else:
+        packet = SetExternTriggerParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetExternTriggerParams:
+      if return_type:
+        packet = GetExternTriggerParamsRT()
+      else:
+        packet = GetExternTriggerParamsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetErrorEllipsoid:
+      if return_type:
+        packet = GetErrorEllipsoidRT()
+      else:
+        packet = GetErrorEllipsoidCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetMeasurementCameraInfo:
+      if return_type:
+        packet = GetMeasurementCameraInfoRT()
+      else:
+        packet = GetMeasurementCameraInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetMeasurementProbeInfo:
+      if return_type:
+        packet = GetMeasurementProbeInfoRT()
+      else:
+        packet = GetMeasurementProbeInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetLongSystemParameter:
+      if return_type:
+        packet = SetLongSystemParamRT()
+      else:
+        packet = SetLongSystemParamCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetLongSystemParameter:
+      if return_type:
+        packet = GetLongSystemParamRT()
+      else:
+        packet = GetLongSystemParamCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetCurrentPrismPosition:
+      if return_type:
+        packet = GetCurrentPrismPositionRT()
+      else:
+        packet = GetCurrentPrismPositionCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetObjectTemperature:
+      if return_type:
+        packet = GetObjectTemperatureRT()
+      else:
+        packet = GetObjectTemperatureCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_ClearCommandQueue:
+      if return_type:
+        packet = ClearCommandQueueRT()
+      else:
+        packet = ClearCommandQueueCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetTriggerBoardInfo:
+      if return_type:
+        packet = GetTriggerBoardInfoRT()
+      else:
+        packet = GetTriggerBoardInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetOverviewCameraInfo:
+      if return_type:
+        packet = GetOverviewCameraInfoRT()
+      else:
+        packet = GetOverviewCameraInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetDoubleSystemParameter:
+      if return_type:
+        packet = GetDoubleSystemParamRT()
+      else:
+        packet = GetDoubleSystemParamCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetDoubleSystemParameter:
+      if return_type:
+        packet = SetDoubleSystemParamRT()
+      else:
+        packet = SetDoubleSystemParamCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_RestoreStartupConditions:
+      if return_type:
+        packet = RestoreStartupConditionsRT()
+      else:
+        packet = RestoreStartupConditionsCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GoAndMeasure:
+      if return_type:
+        packet = GoAndMeasureRT()
+      else:
+        packet = GoAndMeasureCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SetTipAdapter:
+      if return_type:
+        packet = SetTipAdapterRT()
+      else:
+        packet = SetTipAdapterCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetMeteoStationInfo:
+      if return_type:
+        packet = GetMeteoStationInfoRT()
+      else:
+        packet = GetMeteoStationInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetATInfo:
+      if return_type:
+        packet = GetATInfoRT()
+      else:
+        packet = GetATInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetAT4xxInfo:
+      if return_type:
+        packet = GetAT4xxInfoRT()
+      else:
+        packet = GetAT4xxInfoCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_GetSystemSoftwareVersion:
+      if return_type:
+        packet = GetSystemSoftwareVersionRT()
+      else:
+        packet = GetSystemSoftwareVersionCT()
+    elif packet_header.type == ES_DT_Command and packet_info.command == ES_C_SystemPowerDown:
+      if return_type:
+        packet = SystemPowerDownRT()
+      else:
+        packet = SystemPowerDownCT()
+
+    packet.unpack(data)
+    return packet
+    
