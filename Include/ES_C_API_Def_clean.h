@@ -795,12 +795,12 @@ enum ES_TipType
    ES_TT_Scanner = 2,                              
    ES_TT_TouchTrigger = 3,                         
    ES_TT_OpticalTrigger = 4,                       
-   ES_TT_ThreadWithID_Fixed = ES_ST_ThreadWithID + ES_TT_Fixed,                   
-   ES_TT_ThreadWithID_Scanner = ES_ST_ThreadWithID + ES_TT_Scanner,               
-   ES_TT_ThreadWithID_TouchTrigger = ES_ST_ThreadWithID + ES_TT_TouchTrigger,     
-   ES_TT_ThreadWithID_OpticalTrigger = ES_ST_ThreadWithID + ES_TT_OpticalTrigger, 
-   ES_TT_Thread = ES_ST_Thread,                                                   
-   ES_TT_Virtual = ES_ST_Virtual,                                                 
+   ES_TT_ThreadWithID_Fixed = 101,                  
+   ES_TT_ThreadWithID_Scanner = 102,             
+   ES_TT_ThreadWithID_TouchTrigger = 103,     
+   ES_TT_ThreadWithID_OpticalTrigger = 104, 
+   ES_TT_Thread = 200,                                                   
+   ES_TT_Virtual = 999,                                                 
    ES_TT_PassiveTip = 400, 
 };
 
@@ -886,13 +886,13 @@ enum ES_SystemParameter
     ES_SP_D_SystemLongest3DDistanceADM = 1101,     
     ES_SP_D_SystemLongest6DDistance = 1102,        
     ES_SP_ControllerBatteryStatus = 5000,          
-    ES_SP_AT4xxControllerBatteryStatus = ES_SP_ControllerBatteryStatus, 
+    ES_SP_AT4xxControllerBatteryStatus = 5000, 
     ES_SP_SensorBatteryStatus = 5001,              
-    ES_SP_AT4xxSensorBatteryStatus = ES_SP_SensorBatteryStatus, 
+    ES_SP_AT4xxSensorBatteryStatus = 5001, 
     ES_SP_InclinationSensorState = 5002,           
-    ES_SP_AT4xxInclinationSensorState = ES_SP_InclinationSensorState, 
+    ES_SP_AT4xxInclinationSensorState = 5002, 
     ES_SP_ReflectorTiltDetection = 5003,           
-    ES_SP_AT4xxReflectorTiltDetection = ES_SP_ReflectorTiltDetection, 
+    ES_SP_AT4xxReflectorTiltDetection = 5003, 
     ES_SP_StableProbingTrigger = 5004,             
     ES_SP_TwoFaceAverageMode = 5005,               
     ES_SP_StableProbingCriteriaTime = 5006,        
@@ -936,7 +936,7 @@ enum ES_OverviewCameraType
     ES_OCT_Classic = 1,                            
     ES_OCT_TCam_Integrated = 2,                    
     ES_OCT_AT_Integrated = 20,                     
-    ES_OCT_AT4xx_Integrated = ES_OCT_AT_Integrated,
+    ES_OCT_AT4xx_Integrated = 20,
 };
 
 enum ES_TriggerCardType
@@ -973,7 +973,7 @@ enum ES_NivelType
     ES_NT_Nivel20 = 1,                              
     ES_NT_Nivel230 = 2,                            
     ES_NT_NivelAT = 3,                             
-    ES_NT_NivelAT4xx = ES_NT_NivelAT,              
+    ES_NT_NivelAT4xx = 3,              
 };
 
 enum ES_TipToProbeCompensationType
