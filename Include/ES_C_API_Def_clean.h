@@ -847,7 +847,7 @@ enum ES_ProbeConfigTip
 
 enum ES_QuickReleaseStatus
 {
-    ES_QRS_NotExisting = -1,                       
+    ES_QRS_NotExisting = 999,                       
     ES_QRS_Closed = 0,
     ES_QRS_Open = 1,
 };

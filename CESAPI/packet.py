@@ -505,3 +505,181 @@ ES_SSC_LaserReachingLimit = 145
 ES_SSC_LaserNotStabilized = 146
 ES_SSC_MultipleTipAdapterConnected = 150
 ES_SSC_InitializationStatusChanged = 151
+ES_SCC_InitializationStatusChanged = 151
+ES_SSC_TiltSensorStatusChanged = 152
+ES_SCC_TiltSensorStatusChanged = 152
+ES_SSC_CompensationModeStart = 800
+ES_SSC_CompensationModeEnd = 801
+ES_SSC_EmsysFilesImported = 820
+ES_SSC_SensorDetected = 850
+ES_SSC_SensorDisconnected = 851
+ES_SSC_CompensatorStatusChanged = 852
+ES_SSC_BatteryStatusChanged = 853
+ES_SSC_CopyProtectionRemoved = 996
+ES_SSC_TPConnectionClosing = 997
+ES_SSC_ServerClosing = 998
+ES_SSC_ServerStarted = 999
+
+# enum ES_NivelPosition:
+ES_NP_Pos1 = 0
+ES_NP_Pos2 = 1
+ES_NP_Pos3 = 2
+ES_NP_Pos4 = 3
+
+# enum ES_RegionType:
+ES_RT_Sphere = 0
+ES_RT_Box = 1
+ES_RT_NA = 10
+
+# enum ES_StatisticMode:
+ES_SM_Standard = 0
+ES_SM_Extended = 1
+
+# enum ES_StillImageFileType:
+ES_SI_Bitmap = 0
+ES_SI_Jpeg = 1
+
+# enum ES_TransResultType:
+ES_TR_AsTransformation = 0
+ES_TR_AsOrientation = 1
+
+# enum ES_TrackerProcessorType:
+ES_TT_Undefined = 0
+ES_TT_SMART310 = 1
+ES_TT_LT_Controller = 2
+ES_TT_EmbeddedController = 3
+ES_TT_EmbeddedController600 = 4
+ES_TT_ATC900 = 6
+ES_TT_ATC400 = 20
+
+# enum ES_TPMicroProcessorType:
+ES_TPM_Undefined = 0
+ES_TPM_i486 = 1
+ES_TPM_686 = 2
+ES_TPM_PXA250 = 20
+ES_TPM_PXA250_PCB_V4 = 21
+
+# enum ES_LTSensorType:
+ES_LTS_Undefined = 0
+ES_LTS_SMARTOptodyne = 1
+ES_LTS_SMARTLeica = 2
+ES_LTS_LT_D_500 = 3
+ES_LTS_LT300 = 4
+ES_LTS_LT301 = 5
+ES_LTS_LT_D_800 = 6
+ES_LTS_LT_D_700 = 7
+ES_LTS_LT_D_600 = 8
+ES_LTS_LT_D_640 = 9
+ES_LTS_LT_D_706 = 10
+ES_LTS_LT_D_709 = 11
+ES_LTS_LT_D_840 = 12
+ES_LTS_AT901_B = 13
+ES_LTS_AT901_MR = 14
+ES_LTS_AT901_LR = 15
+ES_LTS_AT401 = 70
+ES_LTS_AT402 = 72
+ES_LTS_AT403 = 73
+ES_LTS_NoSensor = 99
+
+# enum ES_TriggerSource:
+ES_TS_Undefined = 0
+ES_TS_Internal_Application = 1
+ES_TS_External = 2
+ES_TS_External_EventMessage = 3
+
+# enum ES_DisplayCoordinateConversionType:
+ES_DCC_BaseToCurrent = 0
+ES_DCC_CurrentToBase = 1
+
+# enum ES_TrackerFace:
+ES_TF_Unknown = 0
+ES_TF_Face1 = 1
+ES_TF_Face2 = 2
+
+# enum ES_MeasurementCameraMode:
+ES_MCM_Measure = 0
+ES_MCM_Overview = 1
+
+# enum ES_MeasurementCameraType:
+ES_MC_None = 0
+ES_MC_TCam700 = 1
+ES_MC_TCam800 = 2
+ES_MC_TCam706 = 3
+ES_MC_TCam709 = 4
+ES_MC_TCam_LR = 5
+ES_MC_TCam_MR = 6
+ES_MC_TCam_XR = 7
+
+# enum ES_ProbeType:
+ES_PT_None = 0
+ES_PT_Reflector = 1
+ES_PT_TProbe = 2
+ES_PT_TScan = 3
+ES_PT_MachineControlProbe = 4
+ES_PT_MachineControlProbeMultiSide = 5
+ES_PT_BProbe = 6
+ES_PT_LAS = 7
+ES_PT_TMC30E = 8
+ES_PT_TCamToTrackerTool = 100
+ES_PT_ZoomArtifactTool = 200
+
+# enum ES_ProbeConnectionType:
+ES_PCT_None = 0
+ES_PCT_CableController = 1
+ES_PCT_CableSensor = 2
+ES_PCT_IRLaser = 3
+ES_PCT_IRWideAngle = 4
+
+# enum ES_ProbeButtonType:
+ES_PBT_None = 0
+ES_PBT_Measurement = 1
+ES_PBT_4Button = 2
+
+# enum ES_SocketType:
+ES_ST_Accurate = 0
+ES_ST_ThreadWithID = 100
+ES_ST_Thread = 200
+ES_ST_Virtual = 999
+
+# enum ES_TipType:
+ES_TT_None = 0
+ES_TT_Fixed = 1
+ES_TT_Scanner = 2
+ES_TT_TouchTrigger = 3
+ES_TT_OpticalTrigger = 4
+ES_TT_ThreadWithID_Fixed = 101
+ES_TT_ThreadWithID_Scanner = 102
+ES_TT_ThreadWithID_TouchTrigger = 103
+ES_TT_ThreadWithID_OpticalTrigger = 104
+ES_TT_Thread = 200
+ES_TT_Virtual = 999
+ES_TT_PassiveTip = 400
+
+# enum ES_ClockTransition:
+ES_CT_Positive = 1
+ES_CT_Negative = 0
+
+# enum ES_TriggerMode:
+ES_TM_EventTrigger = 0
+ES_TM_ContinuousExternalClockWithStartStop = 1
+ES_TM_InternalClockWithExternalStartStop = 2
+
+# enum ES_TriggerStartSignal:
+ES_TSS_High = 1
+ES_TSS_Low = 0
+
+# enum ES_ProbeConfigButton:
+ES_PCB_SingleClick = 0
+ES_PCB_StartStop = 1
+ES_PCB_4ButtonMode = 2
+
+# enum ES_ProbeButtonEvent:
+ES_PBE_DisableEvents = 0
+ES_PBE_EnableEvents = 1
+
+# enum ES_ProbeConfigTip:
+ES_PCT_OnlyWithTip = 0
+ES_PCT_NoTipAllowed = 1
+ES_PCT_OnlyWithShankCompensation = 2
+
+# enum ES_QuickReleaseStatus:
