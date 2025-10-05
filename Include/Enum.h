@@ -22,8 +22,8 @@ Description :  Part of C++ interface for the Embedded System API
 //            unintentionally been mixed up.
 //
 #ifdef ES_API_MINOR_VERSION
-   #define ES_ENUM_MAJOR_VERSION 3  /* EmScon TPI/SDK V3.6 - Note: TPI/SDK Version.. */ 
-   #define ES_ENUM_MINOR_VERSION 6  /* not necessarily matches EmScon server version! */
+   #define ES_ENUM_MAJOR_VERSION 3  /* EmScon TPI/SDK V3.8 - Note: TPI/SDK Version.. */ 
+   #define ES_ENUM_MINOR_VERSION 8  /* not necessarily matches EmScon server version! */
 
    #if ES_API_MAJOR_VERSION != ES_ENUM_MAJOR_VERSION
       #error Version conflict with EmScon API definition file (ES_C_API_Def.h) !

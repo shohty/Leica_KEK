@@ -1,17 +1,17 @@
 
 /******************************************************************************
 
-Copyright (C) Leica Geosystems AG, 2001..2011
+Copyright (C) Leica Geosystems AG, 2001..2018
 
 Filename: ES_C_API_Def.h 
 
 Description: C- Application Programming Interface for Leica Embedded Systems
 
 Notes: 
-This file only comprises the interface for AT4xx 3D Tracker- types.            
-It is an extract of the related full-featured include file (of same name)      
-that is delivered with the emScon SDK). Applications addressing other tracker- 
-types than AT4xx need to include the full-featured include file instead.       
+This file comprises the interface for all Leica Tracker- types (3D, 6DoF).     
+If addressing AT4xx Trackers exclusively, it is recommended rather using the   
+related include file (of same name) that is delivered with the AT4xx SDK).     
+4xx symbols should no longer be used. Use compatible non-4xx symbols instead.  
 
 ******************************************************************************/ 
 
@@ -21,10 +21,11 @@ types than AT4xx need to include the full-featured include file instead.
 // These symbols allow checking against correct include file versions.
 // Note: TPI/SDK Version not necessarily matches EmScon server version!
 //
-// EmScon TPI/SDK Version V3.6
+// EmScon TPI/SDK Version V3.8
 //
 #define ES_API_MAJOR_VERSION  3
-#define ES_API_MINOR_VERSION  6
+#define ES_API_MINOR_VERSION  8
+#define ES_API_VER_REVISION   7
 
 // An application can define this symbol if interested in  
 // version definitions only (mainly for Leica internal use)
@@ -50,7 +51,9 @@ types than AT4xx need to include the full-featured include file instead.
 // new byte alignment == 4, save old value on stack
 #pragma pack (push, 4)
 #elif defined __linux__
-#pragma pack (4)
+#pragma pack (push, 4)
+#else
+#error Insert here directive to ensure 4 Byte alignment for other platforms (Unix, MAC)
 #endif
 
 // No boolean data type is available in C-language. By convention, 'int' is used
@@ -75,10 +78,15 @@ ES_API enum ES_DataType
     ES_DT_Command = 0,
     ES_DT_Error = 1,
     ES_DT_SingleMeasResult = 2,
+    ES_DT_MultiMeasResult = 3,
+    ES_DT_StationaryProbeMeasResult = 4,
+    ES_DT_ContinuousProbeMeasResult = 5,           
     ES_DT_NivelResult = 6,
     ES_DT_ReflectorPosResult = 7,
     ES_DT_SystemStatusChange = 8,
     ES_DT_SingleMeasResult2 = 9,
+    ES_DT_MultiMeasResult2 = 10,
+    ES_DT_ProbePosResult = 11,                     
 };
 
 /**
@@ -89,15 +97,23 @@ ES_API enum ES_Command
     ES_C_ExitApplication = 0,                      // stop (exit) the embedded system
     ES_C_GetSystemStatus = 1,                      // frequently used information
     ES_C_GetTrackerStatus = 2,                     // seldom used information
+    ES_C_SetTemperatureRange = 3,                  // set the temperature range for the tracker
+    ES_C_GetTemperatureRange = 4,                  // get the temperature range for the tracker
     ES_C_SetUnits = 5,
     ES_C_GetUnits = 6,
     ES_C_Initialize = 7,
+    ES_C_ReleaseMotors = 8,                        
     ES_C_ActivateCameraView = 9,
     ES_C_Park = 10,
+    ES_C_SwitchLaser = 11,                         
     ES_C_SetStationOrientationParams = 12,
     ES_C_GetStationOrientationParams = 13,
     ES_C_SetTransformationParams = 14,
     ES_C_GetTransformationParams = 15,
+    ES_C_SetBoxRegionParams = 16,                  
+    ES_C_GetBoxRegionParams = 17,                  
+    ES_C_SetSphereRegionParams = 18,               
+    ES_C_GetSphereRegionParams = 19,               
     ES_C_SetEnvironmentParams = 20,
     ES_C_GetEnvironmentParams = 21,
     ES_C_SetRefractionParams = 22,
@@ -108,11 +124,23 @@ ES_API enum ES_Command
     ES_C_GetCoordinateSystemType = 27,
     ES_C_SetStationaryModeParams = 28,
     ES_C_GetStationaryModeParams = 29,
+    ES_C_SetContinuousTimeModeParams = 30,
+    ES_C_GetContinuousTimeModeParams = 31,
+    ES_C_SetContinuousDistanceModeParams = 32,
+    ES_C_GetContinuousDistanceModeParams = 33,
+    ES_C_SetSphereCenterModeParams = 34,           
+    ES_C_GetSphereCenterModeParams = 35,           
+    ES_C_SetCircleCenterModeParams = 36,           
+    ES_C_GetCircleCenterModeParams = 37,           
+    ES_C_SetGridModeParams = 38,                   
+    ES_C_GetGridModeParams = 39,                   
     ES_C_SetReflector = 40,
     ES_C_GetReflector = 41,
     ES_C_GetReflectors = 42,
     ES_C_SetSearchParams = 43,
     ES_C_GetSearchParams = 44,
+    ES_C_SetAdmParams = 45,                        
+    ES_C_GetAdmParams = 46,                        
     ES_C_SetSystemSettings = 47,
     ES_C_GetSystemSettings = 48,
     ES_C_StartMeasurement = 49,
@@ -129,37 +157,79 @@ ES_API enum ES_Command
     ES_C_GoNivelPosition = 61,
     ES_C_GoLastMeasuredPoint = 62,
     ES_C_FindReflector = 63,                       // searches a reflector at the given position
-    ES_C_Unknown = 64,                              
+    ES_C_Unknown = 64,
     
     // New commands added for release V1.1 / V1.2
+    ES_C_LookForTarget = 65,                       // looks for a reflector at the given position and returns Hz V values
     ES_C_GetDirection = 66,                        // get direction even without reflector locked on
     ES_C_CallOrientToGravity = 67,                 // starts the orient to gravity process
+    ES_C_ClearTransformationNominalPointList = 68, // clears the nominal point list
+    ES_C_ClearTransformationActualPointList = 69,  // clears the actual point list
+    ES_C_AddTransformationNominalPoint = 70,       // adds a point to the nominal point list
+    ES_C_AddTransformationActualPoint = 71,        // adds a point to the nominal point list
+    ES_C_SetTransformationInputParams = 72,        // set the input params for the transformation
+    ES_C_GetTransformationInputParams = 73,        // get the input params for the transformation
+    ES_C_CallTransformation = 74,                  // starts the transformation calculation
+    ES_C_GetTransformedPoints = 75,                // each record in this list is sent via the network
+    ES_C_ClearDrivePointList = 76,                 // clears the drive point list
+    ES_C_AddDrivePoint = 77,                       // adds a point to the nominal point list
+    ES_C_CallIntermediateCompensation = 78,        // starts the intermediate compensation process
     ES_C_SetCompensation = 79,                     // set's the last calculated compensation as the active one
     ES_C_SetStatisticMode = 80,                    // set's the amount of statistical information returned by the system
     ES_C_GetStatisticMode = 81,                    // get's the statistical setting
+    ES_C_GetStillImage = 82,                       // get a still image
     ES_C_SetCameraParams = 83,                     // adjust video camera parameters
-    ES_C_GetCameraParams = 84,                     // read the current video camera parameters            
+    ES_C_GetCameraParams = 84,                     // read the current video camera parameters 
     
     // New commands added for release V1.3 / V1.4 
     ES_C_GetCompensation = 85,                     // read the currently active compensation ID
     ES_C_GetCompensations = 86,                    // read all compensations stored in the database
+    ES_C_CheckBirdBath = 87,                       // bird bath check routine
+    ES_C_GetTrackerDiagnostics = 88,                              
+    ES_C_GetADMInfo = 89,                           
     ES_C_GetTPInfo = 90,
     ES_C_GetNivelInfo = 91,
     ES_C_SetLaserOnTimer = 92,                     // switch the laser on in ... time
     ES_C_GetLaserOnTimer = 93,                     // read the remining time until it is switched on
+    ES_C_ConvertDisplayCoordinates = 94,           // convert display coordinate triples from base to acutal and back
     ES_C_GoBirdBath2 = 95,                         // GoBirdBath with selection (clockwise / counter clockwise)
+    ES_C_SetTriggerSource = 96,                    
+    ES_C_GetTriggerSource = 97,                    
     ES_C_GetFace = 98,                             // returns the current face (Face1 / Face2)
 
     // New commands added for release V2.0 / V2.1
+    ES_C_GetCameras = 99,                          
+    ES_C_GetCamera = 100,                          
+    ES_C_SetMeasurementCameraMode = 101,           
+    ES_C_GetMeasurementCameraMode = 102,           
+    ES_C_GetProbes = 103,
+    ES_C_GetProbe = 104,
+    ES_C_GetTipAdapters = 105,
+    ES_C_GetTipAdapter = 106,
+    ES_C_GetTCamToTrackerCompensations = 107,      
+    ES_C_GetTCamToTrackerCompensation = 108,       
+    ES_C_SetTCamToTrackerCompensation = 109,       
+    ES_C_GetProbeCompensations = 110,
+    ES_C_GetProbeCompensation = 111,
+    ES_C_SetProbeCompensation = 112,               
+    ES_C_GetTipToProbeCompensations = 113,         // kept for compatibility reasons only. Rather use ES_C_GetTipToProbeCompensations2
+    ES_C_GetTipToProbeCompensation = 114,
+    ES_C_SetExternTriggerParams = 115,             
+    ES_C_GetExternTriggerParams = 116,             
+    ES_C_GetErrorEllipsoid = 117,                  
+    ES_C_GetMeasurementCameraInfo = 118,           
+    ES_C_GetMeasurementProbeInfo = 119,
     ES_C_SetLongSystemParameter = 120,
     ES_C_GetLongSystemParameter = 121,
     ES_C_GetMeasurementStatusInfo = 122,
     ES_C_GetCompensations2 = 123,                  // enhanced read all compensations stored in the database
+    ES_C_GetCurrentPrismPosition = 124,            // read the current prism position 3D and 6D
     
     // New commands added for release V2.3 / V2.4
     ES_C_SetDoubleSystemParameter = 125,
     ES_C_GetDoubleSystemParameter = 126,
     ES_C_GetObjectTemperature = 127,               // read the object temperature
+    ES_C_GetTriggerBoardInfo = 128,                
     ES_C_GetOverviewCameraInfo = 129,                   
     ES_C_ClearCommandQueue = 130,                  // clear the command queue
     ES_C_GetADMInfo2 = 131, 
@@ -167,14 +237,20 @@ ES_API enum ES_Command
     ES_C_GetNivelInfo2 = 133,
     ES_C_RestoreStartupConditions = 134,
     ES_C_GoAndMeasure = 135,                       // AutoInspect type of operation
+    ES_C_GetTipToProbeCompensations2 = 136,        // extended information (versions V2.4 and up only)
 
     // New commands added for release V3.5 
+    ES_C_SetTipAdapter = 137,                      // Set a "virtual" or "passive" tip
     ES_C_GetATRInfo = 138,
-    ES_C_GetMeteoStationInfo = 139,    
-    ES_C_GetAT4xxInfo = 140,
+    ES_C_GetMeteoStationInfo = 139,
+    ES_C_GetATInfo = 140,                          // AT4xx trackers only
+    ES_C_GetAT4xxInfo = ES_C_GetATInfo,            // 4xx symbols deprecated - New projects should use ES_C_GetATInfo
     
     // New commands added for release V3.6
     ES_C_GetSystemSoftwareVersion = 142,           
+
+    // New commands added for release V3.8
+    ES_C_SystemPowerDown = 144,                    // AT4xx trackers only
 };
 
 /**
@@ -182,11 +258,26 @@ The currently implemented measurement modes
 **/
 ES_API enum ES_MeasMode
 {
-    ES_MM_Stationary = 0,
+    ES_MM_Stationary = 0,                          // deprecated for AT4xx V2.0
+    ES_MM_ContinuousTime = 1,                      // from AT403
+    ES_MM_ContinuousDistance = 2,                  // from AT403
+    ES_MM_Grid = 3,                                
+    ES_MM_SphereCenter = 4,                        
+    ES_MM_CircleCenter = 5,                        
+    ES_MM_6DStationary = 6,                        
+    ES_MM_6DContinuousTime = 7,                    
+    ES_MM_6DContinuousDistance = 8,                
+    ES_MM_6DGrid = 9,                              
+    ES_MM_6DSphereCenter = 10,                     
+    ES_MM_6DCircleCenter = 11,                     
+    ES_MM_Fast = 20,                               // from AT4xx V2.0
+    ES_MM_Standard = 21,                           // from AT4xx V2.0
+    ES_MM_Precise = 22,                            // from AT4xx V2.0
+    ES_MM_Outdoor = 23,                            // from AT4xx V2.0
 };
 
 /**
-The known taraget types (prism types)
+The known target types (prism types)
 **/
 ES_API enum ES_TargetType
 {
@@ -195,22 +286,42 @@ ES_API enum ES_TargetType
     ES_TT_CatsEye = 2,
     ES_TT_GlassPrism = 3,
     ES_TT_RFIPrism = 4,
-	ES_TT_RRR15 = 5,
-	ES_TT_RRR05 = 6,
-	ES_TT_BRR15 = 7,
-	ES_TT_BRR05 = 8,
-	ES_TT_TBR05 = 9,
+    ES_TT_RRR15 = 5,
+    ES_TT_RRR05 = 6,
+    ES_TT_BRR15 = 7,
+    ES_TT_BRR05 = 8,
+    ES_TT_TBR05 = 9,
+    ES_TT_AutoCollMirror = 10,
+    ES_TT_RRR0875 = 11,
+};
+
+/**
+Set the temperature range for the laser tracker
+ES_TR_Low is for ambient temperatures between 5 and 20 C
+ES_TR_Medium is for ambient temperatures between 10 and 30 C
+ES_TR_High is for ambient temperatures between 20 and 40 C
+ES_TR_Automatic is for AT sensors only
+**/
+ES_API enum ES_TrackerTemperatureRange
+{
+    ES_TR_Low = 0,
+    ES_TR_Medium = 1,
+    ES_TR_High = 2,
+    ES_TR_Automatic = 3,
 };
 
 /**
 Ready status of laser tracker. This information is typically used to display the
 status to the user (red green yellow) 
+                                                                         
+Version 2.0: (ES_TS_6DInvalid) pink indicates the 6D status is not valid 
 **/
 ES_API enum ES_TrackerStatus
 {
     ES_TS_NotReady = 0,
     ES_TS_Busy = 1,
     ES_TS_Ready = 2,
+    ES_TS_6DStatusInvalid = 3,
 };
 
 /**
@@ -242,6 +353,8 @@ ES_API enum ES_ResultStatus
     ES_RS_Parameter6OutOfRangeOK = 21,
     ES_RS_Parameter6OutOfRangeNOK = 22,
     ES_RS_WrongCurrentReflector = 23,
+    ES_RS_NoCircleCenterFound = 24,                
+    ES_RS_NoSphereCenterFound = 25,                
     ES_RS_NoTPFound = 26,
     ES_RS_NoWeathermonitorFound = 27,
     ES_RS_NoLastMeasuredPoint = 28,
@@ -249,6 +362,8 @@ ES_API enum ES_ResultStatus
     ES_RS_NoAdm = 30,
     ES_RS_NoNivel = 31,
     ES_RS_WrongTPFirmware = 32,
+    ES_RS_DataBaseNotFound = 33,                   
+    ES_RS_LicenseExpired = 34,                     
     ES_RS_UsageConflict = 35,
     ES_RS_Unknown = 36,
 
@@ -258,7 +373,11 @@ ES_API enum ES_ResultStatus
     ES_RS_TrackerNotInitialized = 39,              // sensor is not initialized
     ES_RS_ModuleNotStarted = 40,                   // an internal client (module) could not be started
     ES_RS_ModuleTimedOut = 41,                     // an internal client (module) did not finish in time
+    ES_RS_ErrorReadingModuleDb = 42,               // the module data base could not be read
+    ES_RS_ErrorWritingModuleDb = 43,               // the data base could not be written
     ES_RS_NotInCameraPosition = 44,                // Camera can not be used in this position
+    ES_RS_TPHasServiceFirmware = 45,               // Service Firmware loaded
+    ES_RS_TPExternalControl = 46,                  // TP runs under external (AXYZ?) control
     ES_RS_WrongParameter8 = 47,
     ES_RS_WrongParameter9 = 48,
     ES_RS_WrongParameter10 = 49,
@@ -272,30 +391,71 @@ ES_API enum ES_ResultStatus
     // New status values added for V1.3 / V1.4
     ES_RS_NoSuchCompensation = 56,                 // the selected compensation does not exist
     ES_RS_MeteoDataOutOfRange = 57,
+    ES_RS_InCompensationMode = 58,                 
+    ES_RS_InternalProcessActive = 59,              
+    ES_RS_NoCopyProtectionDongleFound = 60,        
+    ES_RS_ModuleNotActivated = 61,                 
+    ES_RS_ModuleWrongVersion = 62,                 
+    ES_RS_DemoDongleExpired = 63,                  
 
     // New status values added for V2.0 / V2.1
-    ES_RS_NoDataToImport = 90,
+    ES_RS_ParameterImportFromProbeFailed = 64,     
+    ES_RS_ParameterExportToProbeFailed = 65,       
+    ES_RS_TrkCompMeasCameraMismatch = 66,          
+    ES_RS_NoMeasurementCamera = 67,                
+    ES_RS_NoActiveMeasurementCamera = 68,          
+    ES_RS_NoMeasurementCamerasInDb = 69,           
+    ES_RS_NoCameraToTrackerCompSet = 70,           
+    ES_RS_NoCameraToTrackerCompInDb = 71,          
+    ES_RS_ProblemStoringCameraToTrackerFactorySet = 72, 
+    ES_RS_ProblemWithCameraInternalCalibration = 73, 
+    ES_RS_CommunicationWithMeasurementCameraFailed = 74, 
+    ES_RS_NoMeasurementProbe = 75,
+    ES_RS_NoActiveMeasurementProbe = 76,           
+    ES_RS_NoMeasurementProbesInDb = 77,            
+    ES_RS_NoMeasurementProbeCompSet = 78,          
+    ES_RS_NoMeasurementProbeCompInDb = 79,         
+    ES_RS_ProblemStoringProbeFactorySet = 80,      
+    ES_RS_WrongActiveMeasurementProbeCompInDb = 81, 
+    ES_RS_CommunicationWithMeasurementProbeFailed = 82, 
+    ES_RS_NoMeasurementTip = 83,                   
+    ES_RS_NoActiveMeasurementTip = 84,             
+    ES_RS_NoMeasurementTipsInDb = 85,              
+    ES_RS_NoMeasurementTipCompInDb = 86,           
+    ES_RS_NoMeasurementTipCompSet = 87,            
+    ES_RS_ProblemStoringTipAssembly = 88,          
+    ES_RS_ProblemReadingCompensationDb = 89,       
+    ES_RS_NoDataToImport = 90,                     
+    ES_RS_ProblemSettingTriggerSource = 91,        
+    ES_RS_6DModeNotAllowed = 92,
+    ES_RS_Bad6DResult = 93,                        
     ES_RS_NoTemperatureFromWM = 94,
     ES_RS_NoPressureFromWM = 95,
     ES_RS_NoHumidityFromWM = 96,
+    ES_RS_6DMeasurementFace2NotAllowed = 97,
 
     // New status values added for V2.3 / V2.4
     ES_RS_InvalidInputData = 98,
+    ES_RS_NoTriggerBoard = 99,                                 
+    ES_RS_NoMeasurementShankCompSet = ES_API_ERROR_OFFSET + 1, 
 
     // New status values added for V3.0
-    ES_RS_NoValidADMCompensation = ES_API_ERROR_OFFSET + 2,
-    ES_RS_PressureSensorProblem = ES_API_ERROR_OFFSET + 3,
+    ES_RS_NoValidADMCompensation = ES_API_ERROR_OFFSET + 2,    
+    ES_RS_PressureSensorProblem = ES_API_ERROR_OFFSET + 3,     
     ES_RS_MeasurementStatusNotReady = ES_API_ERROR_OFFSET + 4,
-    ES_RS_ADMStartUpBusy = ES_API_ERROR_OFFSET + 5,    // for Sensors w/o Interferometer - alias to AIFMStartUpBusy (from V3.6 and up)
+    ES_RS_AIFMStartUpBusy = ES_API_ERROR_OFFSET + 5,           // Intentionally repeated on next line with different name (alias)! 
+    ES_RS_ADMStartUpBusy = ES_API_ERROR_OFFSET + 5,            // for Sensors w/o Interferometer - alias to AIFMStartUpBusy (from V3.6 and up)
 
     // New status values added for V3.5
+    ES_RS_InvalidTipAdapter = ES_API_ERROR_OFFSET + 6,
     ES_RS_NoAtr = ES_API_ERROR_OFFSET + 7,
     ES_RS_NoOVC = ES_API_ERROR_OFFSET + 8,
-    ES_RS_NoStationaryResult = ES_API_ERROR_OFFSET + 9,
+    ES_RS_NoStationaryResult = ES_API_ERROR_OFFSET + 9,        
     ES_RS_SensorNotLeveled = ES_API_ERROR_OFFSET + 10,
     ES_RS_MultiConnectionsNotAllowed = ES_API_ERROR_OFFSET + 11,
 
     // New status values added for V3.6
+    ES_RS_SensorNotWarmedUp = ES_API_ERROR_OFFSET + 12,        
     ES_RS_SensorNotStable = ES_API_ERROR_OFFSET + 13,
     ES_RS_SystemNotReadyForMeasurement = ES_API_ERROR_OFFSET + 14,
     ES_RS_CommunicationWithSensorFailed = ES_API_ERROR_OFFSET + 15,
@@ -305,6 +465,44 @@ ES_API enum ES_ResultStatus
     ES_RS_NotLeveledForInitialization = ES_API_ERROR_OFFSET + 19,
     ES_RS_ADMHardwareProblem = ES_API_ERROR_OFFSET + 20,
     ES_RS_ATRHardwareProblem = ES_API_ERROR_OFFSET + 21,
+    ES_RS_MaxEntriesExceeded = ES_API_ERROR_OFFSET + 22,
+    ES_RS_InvalidMeasurementProfile = ES_API_ERROR_OFFSET + 23,
+    ES_RS_6DoFModeSettingFailed = ES_API_ERROR_OFFSET + 24,
+    ES_RS_ItemSelectionFailed = ES_API_ERROR_OFFSET + 25,
+};
+
+/**
+Additional info for each measurement in the continuous measurement modes
+measurements wit a status other than ES_MS_AllOK should be treated with care
+**/
+ES_API enum ES_MeasurementStatus
+{
+    ES_MS_AllOK = 0,
+    ES_MS_SpeedWarning = 1,
+    ES_MS_SpeedExeeded = 2,
+    ES_MS_PrismError = 3,           
+    ES_MS_TriggerTimeViolation = 4, 
+};
+
+/**
+Additional info for each 6DOF measurement in the continuous measurement mode
+gives information about the trigger button on the probe
+**/
+ES_API enum ES_TriggerStatus
+{
+    ES_TS_TriggerNotPressed = 0,
+    ES_TS_TriggerPressed = 1,    
+};
+
+/**
+Additional info for each 6DOF measurement in the continuous measurement mode
+gives information about the measurement tip
+**/
+ES_API enum ES_MeasurementTipStatus
+{
+    ES_PTS_TipOK = 0,
+    ES_PTS_UnknownTip = 1,           
+    ES_PTS_MultipleTipsAttached = 2, 
 };
 
 /**
@@ -319,11 +517,17 @@ Information about the laser tracker during startup.
     it can only be booted if there was a connection between 
     the embedded system and the laser tracker and this 
     connection is only possible if there is a laser tracker
+
+    The status shows the sequence in the hardware detection. 
+    - a camera was found                                       
+    - a probe was found or has been selected (via passive tip)
+    - a tip was found (if applicable) 
 **/
 ES_API enum ES_TrackerProcessorStatus
 {
     ES_TPS_NoTPFound = 0,
     ES_TPS_TPFound = 1,
+    ES_TPS_NBOpen = 2,                             
     ES_TPS_Booted = 3,
     ES_TPS_CompensationSet = 4,
     ES_TPS_Initialized = 5,
@@ -334,7 +538,12 @@ Additional information about the laser processor in the laser tracker
 **/
 ES_API enum ES_LaserProcessorStatus
 {
+    ES_LPS_LCPCommFailed = 0,                      
+    ES_LPS_LCPNotAvail = 1,                        
+    ES_LPS_LaserHeatingUp = 2,                     
     ES_LPS_LaserReady = 3,
+    ES_LPS_UnableToStabilize = 4,                  
+    ES_LPS_LaserOff = 5,                           
 };
 
 /**
@@ -342,7 +551,13 @@ Additional information about the absolute distance meter in the laser tracker
 **/
 ES_API enum ES_ADMStatus
 {
+    ES_AS_NoADM = 0,                               
+    ES_AS_ADMCommFailed = 1,                       
     ES_AS_ADMReady = 2,
+    ES_AS_ADMBusy = 3,                             
+    ES_AS_HWError = 4,                             
+    ES_AS_SecurityLockActive = 5,                  
+    ES_AS_NotCompensated = 6,                      
 };
 
 /**
@@ -371,6 +586,9 @@ System changes originated by the embedded system
 **/
 ES_API enum ES_SystemStatusChange
 {
+    ES_SSC_DistanceSet = 0,                        
+    ES_SSC_LaserWarmedUp = 1,                      
+                                                   
     // New events added for releases V1.3 .. V2.3
     ES_SSC_EnvironmentParamsChanged = 2,
     ES_SSC_RefractionParamsChanged = 3,
@@ -383,41 +601,92 @@ ES_API enum ES_SystemStatusChange
     ES_SSC_CameraParamsChanged = 10,
     ES_SSC_CompensationChanged = 11,
     ES_SSC_CoordinateSystemTypeChanged = 12,
+    ES_SSC_BoxRegionParamsChanged = 13,            
+    ES_SSC_SphereRegionParamsChanged = 14,         
     ES_SSC_StationOrientationParamsChanged = 15,
     ES_SSC_TransformationParamsChanged = 16,
     ES_SSC_MeasurementModeChanged = 17,
     ES_SSC_StationaryModeParamsChanged = 18,
+    ES_SSC_ContinuousTimeModeParamsChanged = 19,
+    ES_SSC_ContinuousDistanceModeParamsChanged = 20,
+    ES_SSC_GridModeParamsChanged = 21,             
+    ES_SSC_CircleCenterModeParamsChanged = 22,     
+    ES_SSC_SphereCenterModeParamsChanged = 23,     
     ES_SSC_StatisticModeChanged = 24,
     ES_SSC_MeasStatus_NotReady = 25,
     ES_SSC_MeasStatus_Busy = 26,
     ES_SSC_MeasStatus_Ready = 27,
+    ES_SSC_MeasurementCountReached = 28,
+    ES_SSC_TriggerSourceChanged = 29,              
     ES_SSC_IsFace1 = 30,
     ES_SSC_IsFace2 = 31,
+    ES_SSC_ExternalControlActive = 32,             
+    ES_SSC_ServiceSoftwareActive = 33,             
+    ES_SSC_MeasurementCameraChanged = 34,          
+    ES_SSC_MeasurementCameraModeChanged = 35,      
+    ES_SSC_ProbeChanged = 36,
+    ES_SSC_TipChanged = 37,                        
+    ES_SSC_TCamToTrackerCompensationChanged = 38,  
+    ES_SSC_ProbeCompensationChanged = 39,          
+    ES_SSC_TipToProbeCompensationChanged = 40,     
+    ES_SSC_ExternTriggerParamsChanged = 41,        
+    ES_SSC_TCamToTrackerCompensationDeleted = 42,  
+    ES_SSC_MeasurementProbeCompensationDeleted = 43, 
+    ES_SSC_MeasurementTipCompensationDeleted = 44, 
+    ES_SSC_ManyMechanicalCompensationsInDB = 45,   
+    ES_SSC_MeasStatus_6DStatusInvalid = 99,
+    ES_SSC_MeasurementProbeButtonDown = 100,       
+    ES_SSC_MeasurementProbeButtonUp = 101,         
+    ES_SSC_ExternalTriggerEvent = 102,             
+    ES_SSC_ExternalTriggerStartEvent = 103,        
+    ES_SSC_ExternalTriggerStopEvent = 104,         
     ES_SSC_ObjectTemperatureChanged = 105,               
+    ES_SSC_OverviewCameraChanged = 106,            
+    ES_SSC_NivelSensorChanged = 107,               
     ES_SSC_ProbeButton1Down = 110,
     ES_SSC_ProbeButton1Up = 111,
+    ES_SSC_ProbeButton1DoubleClick = 112,          // for future use
     ES_SSC_ProbeButton2Down = 120,
     ES_SSC_ProbeButton2Up = 121,
+    ES_SSC_ProbeButton2DoubleClick = 122,          // for future use
     ES_SSC_ProbeButton3Down = 130,
     ES_SSC_ProbeButton3Up = 131,
+    ES_SSC_ProbeButton3DoubleClick = 132,          // for future use
     ES_SSC_ProbeButton4Down = 140,
     ES_SSC_ProbeButton4Up = 141,
+    ES_SSC_ProbeButton4DoubleClick = 142,          // for future use
+                                                   
+    // New events added for release V3.0           
+    ES_SSC_QuickReleaseOpend = 143,                
+    ES_SSC_QuickReleaseClosed = 144,               
+    ES_SSC_LaserReachingLimit = 145,               
+    ES_SSC_LaserNotStabilized = 146,               
+                                                   
+    // New event added for release V3.5            
+    ES_SSC_MultipleTipAdapterConnected = 150,      
     
     // New events added for release V3.6
-    ES_SCC_InitializationStatusChanged = 151,      // Note the typing error: this should read ES_SSC instead of ES_SCC...
-    ES_SCC_TiltSensorStatusChanged = 152,          // ...nevertheless, for compatibility reasons, leave this unchanged. 
-    
-    // New events added for release V2.3           // Note that items of this enum are ordered by the�r values, not by their release- time)
-    ES_SSC_EmsysFilesImported = 820,     
+    ES_SSC_InitializationStatusChanged = 151,      // ES_SSC_ rahter than ES_SCC_ (typing error) should be used for new projects
+    ES_SCC_InitializationStatusChanged = ES_SSC_InitializationStatusChanged, // ES_SCC (typing error) deprecated.
+    ES_SSC_TiltSensorStatusChanged = 152,          // ES_SSC_ rahter than ES_SCC_ (typing error) should be used for new projects 
+    ES_SCC_TiltSensorStatusChanged = ES_SSC_TiltSensorStatusChanged, // ES_SCC (typing error) deprecated.
 
-    // New events added for release V3.5           // Note that items of this enum are ordered by the�r values, not by their release- time)
+
+    // New events added for release V2.3           // Note that items of this enum are ordered by their values, not by their release- time)
+    ES_SSC_CompensationModeStart = 800,            
+    ES_SSC_CompensationModeEnd = 801,              
+    ES_SSC_EmsysFilesImported = 820,
+
+    // New events added for release V3.5           // Note that items of this enum are ordered by their values, not by their release- time)
     ES_SSC_SensorDetected = 850,     
-    ES_SSC_SensorDisconnected = 851,     
+    ES_SSC_SensorDisconnected = 851,
 
     // New events added for release V3.6
     ES_SSC_CompensatorStatusChanged = 852,         // compensator was switched ON / OFF
     ES_SSC_BatteryStatusChanged = 853,             // battery capacity has changed
+
     
+    ES_SSC_CopyProtectionRemoved = 996,            
     ES_SSC_TPConnectionClosing = 997,
     ES_SSC_ServerClosing = 998,
     ES_SSC_ServerStarted = 999,
@@ -435,6 +704,16 @@ ES_API enum ES_NivelPosition
 };
 
 /**
+Region types supported 
+**/
+ES_API enum ES_RegionType
+{
+    ES_RT_Sphere = 0,                              
+    ES_RT_Box = 1,                                 
+    ES_RT_NA = 10,                                 // AT403 only
+};
+
+/**
 The possible statistics mode selections
 applicable to stationary and continuous mode measurements
 **/
@@ -445,11 +724,34 @@ ES_API enum ES_StatisticMode
 };
 
 /**
+The possible formats for the still image function
+**/
+ES_API enum ES_StillImageFileType
+{
+    ES_SI_Bitmap = 0,
+    ES_SI_Jpeg = 1,
+};
+
+/**
+The implemented result types for the transformation functionality
+**/
+ES_API enum ES_TransResultType
+{
+    ES_TR_AsTransformation = 0,
+    ES_TR_AsOrientation = 1,
+};
+
+/**
 The different tracker processor controller types
 **/
 ES_API enum ES_TrackerProcessorType
 {
     ES_TT_Undefined = 0,
+    ES_TT_SMART310 = 1,                            
+    ES_TT_LT_Controller = 2,                       
+    ES_TT_EmbeddedController = 3,                  
+    ES_TT_EmbeddedController600 = 4,               
+    ES_TT_ATC900 = 6,                              
     ES_TT_ATC400 = 20,
 };
 
@@ -459,7 +761,10 @@ The possible tracker controller micro processor types
 ES_API enum ES_TPMicroProcessorType
 {
     ES_TPM_Undefined = 0,
+    ES_TPM_i486 = 1,                               
+    ES_TPM_686 = 2,                                
     ES_TPM_PXA250 = 20,
+    ES_TPM_PXA250_PCB_V4 = 21,
 };
 
 /**
@@ -468,8 +773,45 @@ The implemented sensor types
 ES_API enum ES_LTSensorType
 {
     ES_LTS_Undefined = 0,
+    ES_LTS_SMARTOptodyne = 1,                      
+    ES_LTS_SMARTLeica = 2,                         
+    ES_LTS_LT_D_500 = 3,                           // LT500 or LTD500
+    ES_LTS_LT300 = 4,                              
+    ES_LTS_LT301 = 5,                              
+    ES_LTS_LT_D_800 = 6,                           // LT800 or LTD800
+    ES_LTS_LT_D_700 = 7,                           // LT700 or LTD700
+    ES_LTS_LT_D_600 = 8,                           // LT600 or LTD600
+    ES_LTS_LT_D_640 = 9,                           
+    ES_LTS_LT_D_706 = 10,                          
+    ES_LTS_LT_D_709 = 11,                          
+    ES_LTS_LT_D_840 = 12,                          
+    ES_LTS_AT901_B  = 13,                          
+    ES_LTS_AT901_MR = 14,                          
+    ES_LTS_AT901_LR = 15,                          
     ES_LTS_AT401 = 70,
+    ES_LTS_AT402 = 72,
+    ES_LTS_AT403 = 73,
     ES_LTS_NoSensor = 99,
+};
+
+/**
+The implemented trigger sources
+**/
+ES_API enum ES_TriggerSource
+{
+    ES_TS_Undefined = 0,
+    ES_TS_Internal_Application = 1,                // default
+    ES_TS_External = 2,
+    ES_TS_External_EventMessage = 3,
+};
+
+/**
+The allowed display coordinate conversion types
+**/
+ES_API enum ES_DisplayCoordinateConversionType
+{
+    ES_DCC_BaseToCurrent = 0,
+    ES_DCC_CurrentToBase = 1,
 };
 
 /**
@@ -482,33 +824,194 @@ ES_API enum ES_TrackerFace
     ES_TF_Face2 = 2,
 };
 
+/**
+The Set/GetCameraMode command takes/returns one of the following values
+**/
+ES_API enum ES_MeasurementCameraMode
+{  
+   ES_MCM_Measure = 0,  
+   ES_MCM_Overview = 1,
+};
+
+/**
+Used for GetCameras command parameter
+**/
+ES_API enum ES_MeasurementCameraType
+{  
+   ES_MC_None = 0,
+   ES_MC_TCam700 = 1,
+   ES_MC_TCam800 = 2,
+   ES_MC_TCam706 = 3,
+   ES_MC_TCam709 = 4,
+   ES_MC_TCam_LR = 5,
+   ES_MC_TCam_MR = 6,
+   ES_MC_TCam_XR = 7,
+};
+
+/**
+Used for GetProbes/ GetMeasurementProbeInfoRT command parameter
+**/
+ES_API enum ES_ProbeType
+{  
+   ES_PT_None = 0,
+   ES_PT_Reflector = 1,
+   ES_PT_TProbe = 2,                       
+   ES_PT_TScan = 3,                        
+   ES_PT_MachineControlProbe = 4,          
+   ES_PT_MachineControlProbeMultiSide = 5, 
+   ES_PT_BProbe = 6,
+   ES_PT_LAS = 7,                          
+   ES_PT_TMC30E = 8,                       
+   ES_PT_TCamToTrackerTool = 100,          
+   ES_PT_ZoomArtifactTool = 200,           
+};
+
+/**
+Used for GetMeasurementProbeInfoRT command parameter
+**/
+ES_API enum ES_ProbeConnectionType
+{  
+   ES_PCT_None = 0,
+   ES_PCT_CableController = 1, 
+   ES_PCT_CableSensor = 2,     
+   ES_PCT_IRLaser = 3,         
+   ES_PCT_IRWideAngle = 4,     
+};
+
+ES_API enum ES_ProbeButtonType
+{
+   ES_PBT_None = 0,
+   ES_PBT_Measurement = 1,     
+   ES_PBT_4Button = 2,             
+};
+
+/**
+Used for GetTipAdapters command parameter
+**/
+ES_API enum ES_SocketType
+{
+    ES_ST_Accurate = 0,                            // Has ID
+    ES_ST_ThreadWithID = 100,                      // Has ID
+    ES_ST_Thread = 200,                            // Does not have ID, detects presence
+    ES_ST_Virtual = 999,                         
+};
+
+ES_API enum ES_TipType
+{  
+   ES_TT_None = 0,
+   ES_TT_Fixed = 1,                                // Tip connected to ES_ST_Accurate socket type
+   ES_TT_Scanner = 2,                              // Tip connected to ES_ST_Accurate socket type  
+   ES_TT_TouchTrigger = 3,                         // Tip connected to ES_ST_Accurate socket type
+   ES_TT_OpticalTrigger = 4,                       // Tip connected to ES_ST_Accurate socket type
+   ES_TT_ThreadWithID_Fixed = ES_ST_ThreadWithID + ES_TT_Fixed,                   
+   ES_TT_ThreadWithID_Scanner = ES_ST_ThreadWithID + ES_TT_Scanner,               
+   ES_TT_ThreadWithID_TouchTrigger = ES_ST_ThreadWithID + ES_TT_TouchTrigger,     
+   ES_TT_ThreadWithID_OpticalTrigger = ES_ST_ThreadWithID + ES_TT_OpticalTrigger, 
+   ES_TT_Thread = ES_ST_Thread,                                                   
+   ES_TT_Virtual = ES_ST_Virtual,                                                 
+   ES_TT_PassiveTip = 400, // B-Probe Tip
+};
+
+/**
+The Set/GetTriggerParams command take/returns of the following values
+**/
+ES_API enum ES_ClockTransition
+{
+   ES_CT_Positive = 1,
+   ES_CT_Negative = 0,
+};
+
+ES_API enum ES_TriggerMode
+{
+   ES_TM_EventTrigger = 0,
+   ES_TM_ContinuousExternalClockWithStartStop = 1,
+   ES_TM_InternalClockWithExternalStartStop = 2,
+};
+
+ES_API enum ES_TriggerStartSignal
+{
+   ES_TSS_High = 1,
+   ES_TSS_Low = 0,
+};
+
+/**
+The currently implemented system parameter settings
+**/
+ES_API enum ES_ProbeConfigButton
+{
+    ES_PCB_SingleClick = 0,
+    ES_PCB_StartStop = 1,    
+    ES_PCB_4ButtonMode = 2,                        // each button own event
+};
+
 ES_API enum ES_ProbeButtonEvent
 {
     ES_PBE_DisableEvents = 0,                      // no button events are send
     ES_PBE_EnableEvents = 1,                       // server sends button events
 };
 
+ES_API enum ES_ProbeConfigTip
+{
+    ES_PCT_OnlyWithTip = 0,
+    ES_PCT_NoTipAllowed = 1,
+    ES_PCT_OnlyWithShankCompensation = 2,          // tip MUST have valid shank compensation
+};
+
+ES_API enum ES_QuickReleaseStatus
+{
+    ES_QRS_NotExisting = -1,                       // older sensor type, does not have quick release
+    ES_QRS_Closed = 0,
+    ES_QRS_Open = 1,
+};
+
+
 ES_API enum ES_PowerLockMode
 {
-    ES_PLM_InDoor = 0,
-    ES_PLM_OutDoor = 1,
-    ES_PLM_OutDoor_LongRange = 2,
+    ES_PLM_InDoor = 0,                             // deprecated for AT4xx V2.0               
+    ES_PLM_OutDoor = 1,                            // deprecated for AT4xx V2.0
+    ES_PLM_OutDoor_LongRange = 2,                  // deprecated for AT4xx V2.0
 };
 
 ES_API enum ES_SystemParameter
 {
     ES_SP_KeepLastPositionFlag = 0,                // 0 = OFF; 1 = ON
     ES_SP_WeatherMonitorSetting = 1,               // see ES_WeatherMonitorStatus
+    ES_SP_ShowAll6DMeasurements = 2,               // 0 = Only show data if 6D status is OK (default)
+    ES_SP_LaserPointerCaptureBeam = 3,             // 0 = Beam catch OFF; 1 = Beam catch ON (default
     ES_SP_DisplayReflectorPosition = 10,           // 0 = OFF; 1 = ON
+    ES_SP_ProbeConfig_Button = 50,                 // see enum ES_ProbeConfigButton
     ES_SP_ProbeConfig_ButtonEvent = 51,            // see enum ES_ProbeButtonEvent
+    ES_SP_ProbeConfig_Tip = 52,                    // see enum ES_ProbeConfigTip
+    ES_SP_ProbeConfig_SoundVolume = 53,            // 0 = OFF; 1..7 soft .. loud
+    ES_SP_ProbeConfig_PowerOffTime = 54,           // 2..255 minutes until power off
+    ES_SP_QuickReleaseStatus = 60,                 // Get only : see enum ES_QuickReleaseStatus
     ES_SP_TcpCommandQueueSize = 200,               // 0 = OFF 1..10 queue size
+    ES_SP_SystemMax6DDataRate = 300,               // Get only! Maximal 6D data rate (interpolated)
+    ES_SP_TcpDataPacketRate = 400,                 // Between 3 and 10 packets per second (LTD706 and later!)
     ES_SP_PowerLockFunctionAvailable = 410,        // 0 = NO ; 1 = YES, Power Lock functionality is available
     ES_SP_PowerLockFunctionActive = 411,           // 0 = NO ; 1 = YES Power Lock functionality is active
     ES_SP_PowerLockMode = 450,                     // see enum ES_PowerLockMode
+    ES_SP_D_TemperatureThreshold = 1000,           // causes an event to be sent 
+    ES_SP_D_PressureThreshold = 1001,              // causes an event to be sent 
+    ES_SP_D_HumidityThreshold = 1002,              // causes an event to be sent 
+    ES_SP_D_SystemLongest3DDistanceIFM = 1100,     // Get only! Longest distance system can measure
     ES_SP_D_SystemLongest3DDistanceADM = 1101,     // Get only! Longest distance system can measure
-    ES_SP_AT4xxControllerBatteryStatus = 5000,     // Get only; 0 .. 100%; 110% ==> external power; 120% ==> PoE (power over Ethernet)
-    ES_SP_AT4xxSensorBatteryStatus = 5001,         // Get only; 0 .. 100%; 110% ==> external power
-    ES_SP_AT4xxInclinationSensorState = 5002,      // valid states see ES_InclinationSensorState
+    ES_SP_D_SystemLongest6DDistance = 1102,        // Get only! Longest distance system can measure
+    ES_SP_ControllerBatteryStatus = 5000,          // Get only; 0 .. 100%; 110% ==> external power; 120% ==> PoE (power over Ethernet) - AT4xx only
+    ES_SP_AT4xxControllerBatteryStatus = ES_SP_ControllerBatteryStatus, // 4xx symbols deprecated - left for compatibility
+    ES_SP_SensorBatteryStatus = 5001,              // Get only; 0 .. 100%; 110% ==> external power - AT4xx only
+    ES_SP_AT4xxSensorBatteryStatus = ES_SP_SensorBatteryStatus, // 4xx symbols deprecated - left for compatibility
+    ES_SP_InclinationSensorState = 5002,           // valid states see ES_InclinationSensorState - AT4xx only
+    ES_SP_AT4xxInclinationSensorState = ES_SP_InclinationSensorState, // 4xx symbols deprecated - left for compatibility
+    ES_SP_ReflectorTiltDetection = 5003,           // 0 = OFF; 1 = ON - AT4xx only
+    ES_SP_AT4xxReflectorTiltDetection = ES_SP_ReflectorTiltDetection, // 4xx symbols deprecated - left for compatibility
+    ES_SP_StableProbingTrigger = 5004,             // 0 = OFF; 1 = ON - AT4xx only
+    ES_SP_TwoFaceAverageMode = 5005,               // 0 = OFF; 1 = ON - AT4xx only
+    ES_SP_StableProbingCriteriaTime = 5006,        // Stable Probing Time Trigger parameter (long, milliseconds) - AT4xx only 
+    ES_SP_PowerOverrideSupported = 5010,           // Get only, 0 = No ; 1 = YES - AT4xx only
+    ES_SP_PowerOverrideEnabled = 5011,             // Get only, 0 = No ; 1 = YES - AT4xx only
+    ES_SP_InitializationQualityCheckMode = 5020,   // valid states see ES_InitializationQualityCheckMode - AT4xx only
+    ES_SP_D_StableProbingCriteriaRegion= 6000,     // Stable Probing Region Trigger parameter (double, meters) - AT4xx only 
 };
 
 ES_API enum ES_MeasurementStatusInfo
@@ -518,8 +1021,16 @@ ES_API enum ES_MeasurementStatusInfo
     ES_MSI_TrackerCompensationFound = 2,
     ES_MSI_ADMFound = 4,
     ES_MSI_ADMCompensationFound = 8,
+    ES_MSI_MeasurementCameraFound = 16,
+    ES_MSI_InternalCameraParamsOK = 32,
+    ES_MSI_CameraToTrackerParamsFound = 64,         
+    ES_MSI_MeasurementProbeFound = 128,
+    ES_MSI_ProbeParamsFound = 256,
+    ES_MSI_MeasurementTipFound = 512,
+    ES_MSI_TipParamsFound = 1024,
     ES_MSI_ReflectorFound = 2048,
     ES_MSI_InFace1 = 4096,
+    ES_MSI_ShankParamsFound = 8192,                 
     ES_MSI_SensorBatteryMounted = 16384,
     ES_MSI_NivelInWorkingRange = 32768,
     ES_MSI_Initialized = 65536,
@@ -534,21 +1045,32 @@ ES_API enum ES_ClearCommandQueueType
 ES_API enum ES_OverviewCameraType
 {
     ES_OCT_Unknown = 0,
-    ES_OCT_Classic = 1,
-    ES_OCT_AT4xx_Integrated = 20,                  
+    ES_OCT_Classic = 1,                            
+    ES_OCT_TCam_Integrated = 2,                    // overview camera in TCam stand
+    ES_OCT_AT_Integrated = 20,                     // AT4xx trackers only
+    ES_OCT_AT4xx_Integrated = ES_OCT_AT_Integrated,// 4xx symbols deprecated - New projects should use ES_OCT_AT_Integrated
+};
+
+ES_API enum ES_TriggerCardType
+{
+    ES_TCT_None = 0,
+    ES_TCT_SingleTracker = 1,
 };
 
 ES_API enum ES_ADMType
 {
     ES_AMT_Unknown = 0,
-    ES_AMT_LeicaADM2 = 3,                          // ADM of AT401 tracker series
+    ES_AMT_LeicaADM = 1,                           // Standard ADM
+    ES_AMT_LeicaAIFM = 2,                          // AIFM
+    ES_AMT_LeicaADM2 = 3,                          // AT4xx special variant
+    ES_AMT_LeicaADM3 = 4,                          // Flapless ADM
 };
 
 ES_API enum ES_ATRType
 {
     ES_ATR_None = 0,
     ES_ATR_4 = 1,
-    ES_ATR_5i = 2,                                 // ATR of AT401 tracker series
+    ES_ATR_5i = 2,                                 // ATR of AT4xx tracker series
 };
 
 ES_API enum ES_TrkAccuracyModel
@@ -560,7 +1082,17 @@ ES_API enum ES_TrkAccuracyModel
 ES_API enum ES_NivelType
 {
     ES_NT_Unknown = 0,
-    ES_NT_NivelAT4xx = 3,
+    ES_NT_Nivel20 = 1,                              
+    ES_NT_Nivel230 = 2,                            // name TBD !!!
+    ES_NT_NivelAT = 3,                             // AT4xx trackers only
+    ES_NT_NivelAT4xx = ES_NT_NivelAT,              // 4xx symbols deprecated - New projects should use ES_NT_NivelAT
+};
+
+ES_API enum ES_TipToProbeCompensationType
+{
+    ES_TCT_Unknown = 0,
+    ES_TCT_TipOnly = 1,
+    ES_TCT_ShankEnabled = 2,  
 };
 
 ES_API enum ES_MeteoStationType
@@ -573,14 +1105,21 @@ ES_API enum ES_MeteoStationType
 ES_API enum ES_WLANType
 {
     ES_WLAN_None = 0,
-    ES_WLAN_OWL211 = 1,
-    ES_WLAN_OWL221 = 2,
+    ES_WLAN_BGW211 = 1,
+    ES_WLAN_OWL221a = 2,
+    ES_WLAN_Morin = 3,
 };
 
 ES_API enum ES_InclinationSensorState
 {
     ES_ISS_Off = 0,
     ES_ISS_ApplyCorrections = 2,
+};
+
+ES_API enum ES_InitializationQualityCheckMode
+{
+    ES_IQM_OnlyGood = 0,
+    ES_IQM_Warning = 1,
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -624,6 +1163,35 @@ struct BasicCommandRT
     enum ES_ResultStatus status;
 };
 
+/**
+Helper struct and union, to analyze 6D rotation status
+**/
+struct RotationStatus
+{
+    unsigned Status6D:1;                           // 0 => no rotation status; 1 => rotation status valid
+    unsigned Error6D:1;                            // 1 => ERROR in rotation status
+    unsigned NotEnoughLED:1;                       // 
+    unsigned RMSToHigh:1;                          // 
+    unsigned AngleOutOfRange:1;                    // Hz or Vt (see RotStatus values)
+    unsigned Frozen6DValues:1;                     // 6D values are not updated !
+    unsigned DistanceOutOfRange:1;                 // distance is too short or too long
+    unsigned Reserved1:1;                          // always 0
+    unsigned RotStatLeftRight:3;                   // see documentation
+    unsigned RotStatUpDown:3;                      // see documentation
+    unsigned GoodGauge:2;                          // 0 => All bad; 1 => 33% good; 2 => 66% good ...
+    unsigned Face2:1;                              // 0 => Face1; 1 => Face2
+    unsigned Reserved2:1;                          // always 0 
+    unsigned NumOfLedsUsedChanged:1;               // 1 = number of LED's changed; 0 = same number as last
+    unsigned NumOfLedsUsedInCalc:4;                // number of LED's used in calculation
+    unsigned Reserved3:9;                          // always 0 
+};
+
+union URotationStatus
+{
+    long                  l;
+    struct RotationStatus rotStat;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 /**
 Result packet sent after a Nivel measurement was carried out
@@ -647,6 +1215,28 @@ struct ReflectorPosResultT
     double             dVal1;
     double             dVal2;
     double             dVal3;
+};
+
+// This structure serves for 6D probe position/orientation indication regardless
+// whether RotationAngle or Quaternion rotation representation.
+//
+struct ProbePosResultT
+{
+    struct ReturnDataT           packetInfo;
+    long                         lRotationStatus;
+    enum ES_MeasurementTipStatus tipStatus;
+    int                          iInternalTipAdapterId;
+    int                          iTipAdapterInterface;
+    double                       dPosition1;
+    double                       dPosition2;
+    double                       dPosition3;
+    double                       dQuaternion0;
+    double                       dQuaternion1;
+    double                       dQuaternion2;
+    double                       dQuaternion3;
+    double                       dRotationAngleX;
+    double                       dRotationAngleY;
+    double                       dRotationAngleZ;
 };
 
 /**
@@ -711,6 +1301,192 @@ struct SingleMeasResult2T
 };
 
 /**
+This struct contains a single measurement in a continuous measurement stream
+**/
+struct MeasValueT
+{
+    enum ES_MeasurementStatus status;
+    long                      lTime1;
+    long                      lTime2;
+    double                    dVal1;
+    double                    dVal2;
+    double                    dVal3;
+};
+
+/**
+This struct contains a single measurement in a continuous measurement stream
+in addition to the MeasValueT record, it contains statistical information about the point
+**/
+struct MeasValue2T
+{
+    enum ES_MeasurementStatus status;
+    long                      lTime1;
+    long                      lTime2;
+    double                    dVal1;
+    double                    dVal2;
+    double                    dVal3;
+    double                    dAprioriStd1;
+    double                    dAprioriStd2;
+    double                    dAprioriStd3;
+    double                    dAprioriStdTotal;
+    double                    dAprioriCovar12;
+    double                    dAprioriCovar13;
+    double                    dAprioriCovar23;
+};
+
+/**
+"header" part of a continuous measurement data packet
+**/
+struct MultiMeasResultT
+{
+    struct ReturnDataT packetInfo;
+    long               lNumberOfResults;
+    enum ES_MeasMode   measMode;
+    ES_BOOL            bIsTryMode;
+    double             dTemperature;
+    double             dPressure;
+    double             dHumidity;
+    struct MeasValueT  data[1];                    // first element (exact number of elements is in lNumberOfResults)
+};
+
+/**
+"header" part of a continuous measurement data packet
+**/
+struct MultiMeasResult2T
+{
+    struct ReturnDataT packetInfo;
+    long               lNumberOfResults;
+    enum ES_MeasMode   measMode;
+    ES_BOOL            bIsTryMode;
+    double             dTemperature;
+    double             dPressure;
+    double             dHumidity;
+    struct MeasValue2T data[1];                    // first element (exact number of elements is in lNumberOfResults)
+};                         
+
+// This structure is used to transmit the result of a 6D stationary measurement. 
+// The result depends on length and angle units, the coordinate system type, 
+// orientation and transformation paramters selected.
+// It contains
+// - Status Information
+// - Position of Tip including its accuracy
+// - Probe orientation in two different representations: 
+//     - Quaternion or 
+//     - RotationAngle Angles including their accuraccy
+//     - Environmental Data
+//
+struct ProbeStationaryResultT
+{
+    struct ReturnDataT           packetInfo;
+    enum ES_MeasMode             measMode;
+    ES_BOOL                      bIsTryMode;
+    enum ES_TriggerStatus        triggerStatus;
+    long                         lRotationStatus;
+    int                          iInternalProbeId;        
+    int                          iFieldNumber;        
+    enum ES_MeasurementTipStatus tipStatus;
+    int                          iInternalTipAdapterId;
+    int                          iTipAdapterInterface;
+    double                       dPosition1;
+    double                       dPosition2;
+    double                       dPosition3;
+    double                       dStdDevPosition1;
+    double                       dStdDevPosition2;
+    double                       dStdDevPosition3;
+    double                       dStdDevPositionTotal;
+    double                       dCovarPosition12;
+    double                       dCovarPosition13;
+    double                       dCovarPosition23;
+    double                       dAprioriStdDevPosition1;
+    double                       dAprioriStdDevPosition2;
+    double                       dAprioriStdDevPosition3;
+    double                       dAprioriStdDevPositionTotal;
+    double                       dAprioriCovarPosition12;
+    double                       dAprioriCovarPosition13;
+    double                       dAprioriCovarPosition23;
+    double                       dQuaternion0;
+    double                       dQuaternion1;
+    double                       dQuaternion2;
+    double                       dQuaternion3;
+    double                       dRotationAngleX;
+    double                       dRotationAngleY;
+    double                       dRotationAngleZ;
+    double                       dStdDevRotationAngleX;
+    double                       dStdDevRotationAngleY;
+    double                       dStdDevRotationAngleZ;
+    double                       dStdDevRotationAngleTotal; 
+    double                       dCovarRotationAngleXY;
+    double                       dCovarRotationAngleXZ;
+    double                       dCovarRotationAngleYZ;
+    double                       dAprioriStdDevRotationAngleX;
+    double                       dAprioriStdDevRotationAngleY;
+    double                       dAprioriStdDevRotationAngleZ;
+    double                       dAprioriStdDevRotationAngleTotal; 
+    double                       dAprioriCovarRotationAngleXY;
+    double                       dAprioriCovarRotationAngleXZ;
+    double                       dAprioriCovarRotationAngleYZ;
+    double                       dTemperature;
+    double                       dPressure;
+    double                       dHumidity;
+}; 
+
+// This struct contains a single measurement (6 degree of freedom) in a continuous 
+// measurement stream 
+//
+struct ProbeMeasValueT
+{
+    enum ES_MeasurementStatus status;
+    enum ES_TriggerStatus     triggerStatus;   
+    long                      lRotationStatus;     // Yes, it is possible to change tips
+    long                      lTime1;
+    long                      lTime2;
+    double                    dPosition1;
+    double                    dPosition2;
+    double                    dPosition3;
+    double                    dStdDevPosition1;
+    double                    dStdDevPosition2;
+    double                    dStdDevPosition3;
+    double                    dStdDevPositionTotal;
+    double                    dCovarPosition12;
+    double                    dCovarPosition13;
+    double                    dCovarPosition23;
+    double                    dQuaternion0;
+    double                    dQuaternion1;
+    double                    dQuaternion2;
+    double                    dQuaternion3;
+    double                    dRotationAngleX;
+    double                    dRotationAngleY;
+    double                    dRotationAngleZ;
+    double                    dStdDevRotationAngleX;
+    double                    dStdDevRotationAngleY;
+    double                    dStdDevRotationAngleZ;
+    double                    dStdDevRotationAngleTotal;
+    double                    dCovarRotationAngleXY;
+    double                    dCovarRotationAngleXZ;
+    double                    dCovarRotationAngleYZ;
+};
+
+// "header" part of a continuous measurement (6 degree of freedom)
+// data packet with full statistis 
+//
+struct ProbeContinuousResultT
+{
+    struct ReturnDataT           packetInfo;
+    long                         lNumberOfResults;
+    enum ES_MeasMode             measMode;
+    ES_BOOL                      bIsTryMode;
+    int                          iInternalProbeId;
+    int                          iFieldNumber;        
+    enum ES_MeasurementTipStatus tipStatus;
+    int                          iInternalTipAdapterId;
+    int                          iTipAdapterInterface;
+    double                       dTemperature;
+    double                       dPressure;
+    double                       dHumidity;
+    struct ProbeMeasValueT       data[1];          // first element (exact number of elements is in lNumberOfResults)
+};
+
+/**
 Packet sent after a system status change
 **/
 struct SystemStatusChangeT
@@ -736,6 +1512,17 @@ struct InitializeCT
 };
 
 struct InitializeRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+struct ReleaseMotorsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct ReleaseMotorsRT
 {
     struct BasicCommandRT packetInfo;
 };
@@ -859,6 +1646,21 @@ struct GoLastMeasuredPointRT
 
 /////////////////////////////////////////////////////////////////////////////
 /**
+Switch the laser of the laser tracker ON and OFF
+**/
+struct SwitchLaserCT
+{
+    struct BasicCommandCT packetInfo;
+    ES_BOOL               bIsOn;
+};
+
+struct SwitchLaserRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
 Call the FindReflector command
 **/
 struct FindReflectorCT
@@ -900,6 +1702,36 @@ struct GetCoordinateSystemTypeRT
 {
     struct BasicCommandRT        packetInfo;
     enum ES_CoordinateSystemType coordSysType;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the active laser tracker temperature range
+**/
+struct SetTemperatureRangeCT
+{
+    struct BasicCommandCT           packetInfo;
+    enum ES_TrackerTemperatureRange temperatureRange;
+};
+
+struct SetTemperatureRangeRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the active laser tracker temperature range
+**/
+struct GetTemperatureRangeCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTemperatureRangeRT
+{
+    struct BasicCommandRT           packetInfo;
+    enum ES_TrackerTemperatureRange temperatureRange;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -970,6 +1802,43 @@ struct GetSearchParamsRT
 
 /////////////////////////////////////////////////////////////////////////////
 /**
+Use this data type to set the parameters for the ADM
+**/
+struct AdmParamsDataT
+{
+    double dTargetStabilityTolerance;
+    long   lRetryTimeFrame;                        // in milliseconds
+    long   lNumberOfRetrys;
+};
+
+struct SetAdmParamsCT
+{
+    struct BasicCommandCT packetInfo;
+    struct AdmParamsDataT admParams;
+};
+
+struct SetAdmParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the parameters for the ADM
+**/
+struct GetAdmParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetAdmParamsRT
+{
+    struct BasicCommandRT packetInfo;
+    struct AdmParamsDataT admParams;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
 Use this data type to set the parameters for the stationary measurement mode
 **/
 struct StationaryModeDataT
@@ -1002,6 +1871,198 @@ struct GetStationaryModeParamsRT
 {
     struct BasicCommandRT      packetInfo;
     struct StationaryModeDataT stationaryModeData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the parameters for the continuous time measurement mode
+**/
+struct ContinuousTimeModeDataT
+{
+    long               lTimeSeparation;
+    long               lNumberOfPoints;            // ZERO means continuously
+    ES_BOOL            bUseRegion;
+    enum ES_RegionType regionType;    
+};
+
+struct SetContinuousTimeModeParamsCT
+{
+    struct BasicCommandCT          packetInfo;
+    struct ContinuousTimeModeDataT continuousTimeModeData;
+};
+
+struct SetContinuousTimeModeParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the parameters for the continuous time measurement mode
+**/
+struct GetContinuousTimeModeParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetContinuousTimeModeParamsRT
+{
+    struct BasicCommandRT          packetInfo;
+    struct ContinuousTimeModeDataT continuousTimeModeData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the parameters for the continuous distance measurement mode
+**/
+struct ContinuousDistanceModeDataT
+{
+    double             dSpatialDistance;
+    long               lNumberOfPoints;            // ZERO means continuously
+    ES_BOOL            bUseRegion;
+    enum ES_RegionType regionType;    
+};
+
+struct SetContinuousDistanceModeParamsCT
+{
+    struct BasicCommandCT              packetInfo;
+    struct ContinuousDistanceModeDataT continuousDistanceModeData;
+};
+
+struct SetContinuousDistanceModeParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the parameters for the continuous distance measurement mode
+**/
+struct GetContinuousDistanceModeParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetContinuousDistanceModeParamsRT
+{
+    struct BasicCommandRT              packetInfo;
+    struct ContinuousDistanceModeDataT continuousDistanceModeData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the parameters for the sphere center measurement mode
+**/
+struct SphereCenterModeDataT
+{
+    double  dSpatialDistance;
+    long    lNumberOfPoints;                       // ZERO means continuously
+    ES_BOOL bFixRadius;
+    double  dRadius;
+};
+
+struct SetSphereCenterModeParamsCT
+{
+    struct BasicCommandCT        packetInfo;
+    struct SphereCenterModeDataT sphereCenterModeData;
+};
+
+struct SetSphereCenterModeParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the parameters for the sphere center measurement mode
+**/
+struct GetSphereCenterModeParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetSphereCenterModeParamsRT
+{
+    struct BasicCommandRT        packetInfo;
+    struct SphereCenterModeDataT sphereCenterModeData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the parameters for the circle center measurement mode
+**/
+struct CircleCenterModeDataT
+{
+    double  dSpatialDistance;
+    long    lNumberOfPoints;                       // ZERO means continuously
+    ES_BOOL bFixRadius;
+    double  dRadius;
+};
+
+struct SetCircleCenterModeParamsCT
+{
+    struct BasicCommandCT        packetInfo;
+    struct CircleCenterModeDataT circleCenterModeData;
+};
+
+struct SetCircleCenterModeParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the parameters for the circle center measurement mode
+**/
+struct GetCircleCenterModeParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetCircleCenterModeParamsRT
+{
+    struct BasicCommandRT        packetInfo;
+    struct CircleCenterModeDataT circleCenterModeData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the parameters for the grid measurement mode
+**/
+struct GridModeDataT
+{
+    double             dVal1;
+    double             dVal2;
+    double             dVal3;
+    long               lNumberOfPoints;            // ZERO means continuously
+    ES_BOOL            bUseRegion;
+    enum ES_RegionType regionType;    
+};
+
+struct SetGridModeParamsCT
+{
+    struct BasicCommandCT packetInfo;
+    struct GridModeDataT  gridModeData;
+};
+
+struct SetGridModeParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the parameters for the grid measurement mode
+**/
+struct GetGridModeParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetGridModeParamsRT
+{
+    struct BasicCommandRT packetInfo;
+    struct GridModeDataT  gridModeData;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1145,7 +2206,7 @@ struct GetSystemStatusRT
     enum ES_ADMStatus              admStatus;
     struct ESVersionNumberT        esVersionNumber;
     enum ES_WeatherMonitorStatus   weatherMonitorStatus;
-    long                           lFlagsValue;                     // Always 0 (zero) in AT401 use GetMeasurementStatusInfo
+    long                           lFlagsValue;                     // Always 0 (zero) in AT4xx use GetMeasurementStatusInfo
     long                           lTrackerSerialNumber;
 };                                
 
@@ -1386,6 +2447,84 @@ struct GetTransformationParamsRT
 
 /////////////////////////////////////////////////////////////////////////////
 /**
+Use this data type to set the box region parameters
+**/
+struct BoxRegionDataT
+{
+    double dP1Val1;
+    double dP1Val2;
+    double dP1Val3;
+    double dP2Val1;
+    double dP2Val2;
+    double dP2Val3;
+};
+
+struct SetBoxRegionParamsCT
+{
+    struct BasicCommandCT packetInfo;
+    struct BoxRegionDataT boxRegionData;
+};
+
+struct SetBoxRegionParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the box region parameters
+**/
+struct GetBoxRegionParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetBoxRegionParamsRT
+{
+    struct BasicCommandRT packetInfo;
+    struct BoxRegionDataT boxRegionData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the sphere region parameters
+**/
+struct SphereRegionDataT
+{
+    double dVal1;
+    double dVal2;
+    double dVal3;
+    double dRadius;
+};
+
+struct SetSphereRegionParamsCT
+{
+    struct BasicCommandCT    packetInfo;
+    struct SphereRegionDataT sphereRegionData;
+};
+
+struct SetSphereRegionParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the sphere region parameters
+**/
+struct GetSphereRegionParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetSphereRegionParamsRT
+{
+    struct BasicCommandRT    packetInfo;
+    struct SphereRegionDataT sphereRegionData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
 Use this data type to call the GoPosition command
 The input parameter are according to the selected coordinate system type
 **/
@@ -1401,6 +2540,27 @@ struct GoPositionCT
 struct GoPositionRT
 {
     struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the LookForTarget command
+The input parameter are according to the selected coordinate system type
+**/
+struct LookForTargetCT
+{
+    struct BasicCommandCT packetInfo;
+    double                dVal1;
+    double                dVal2;
+    double                dVal3;
+    double                dSearchRadius;
+};
+
+struct LookForTargetRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dHzAngle;
+    double                dVtAngle;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1541,6 +2701,250 @@ struct CallOrientToGravityRT
     struct BasicCommandRT packetInfo;
     double                dOmega;
     double                dPhi;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the IntermediateCompensation process
+**/
+struct CallIntermediateCompensationCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct CallIntermediateCompensationRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dTotalRMS;
+    double                dMaxDev;
+    long                  lWarningFlags;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the Transformation process
+**/
+struct CallTransformationCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct CallTransformationRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dTransVal1;
+    double                dTransVal2;
+    double                dTransVal3;
+    double                dRotVal1;
+    double                dRotVal2;
+    double                dRotVal3;
+    double                dScale;
+    double                dTransStdVal1;
+    double                dTransStdVal2;
+    double                dTransStdVal3;
+    double                dRotStdVal1;
+    double                dRotStdVal2;
+    double                dRotStdVal3;
+    double                dScaleStd;
+    double                dRMS;
+    double                dMaxDev;
+    double                dVarianceFactor;
+};                            
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the input parameters for the
+transformation process
+**/
+struct TransformationInputDataT
+{
+    enum ES_TransResultType resultType;  
+    double                  dTransVal1;
+    double                  dTransVal2;
+    double                  dTransVal3;
+    double                  dRotVal1;
+    double                  dRotVal2;
+    double                  dRotVal3;
+    double                  dScale;
+    double                  dTransStdVal1;
+    double                  dTransStdVal2;
+    double                  dTransStdVal3;
+    double                  dRotStdVal1;
+    double                  dRotStdVal2;
+    double                  dRotStdVal3;
+    double                  dScaleStd;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the SetTransformationInputParams command
+**/
+struct SetTransformationInputParamsCT
+{
+    struct BasicCommandCT           packetInfo;
+    struct TransformationInputDataT transformationData;
+};
+
+struct SetTransformationInputParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the GetTransformationInputParams command
+**/
+struct GetTransformationInputParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTransformationInputParamsRT
+{
+    struct BasicCommandRT           packetInfo;
+    struct TransformationInputDataT transformationData;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the ClearTransformationNominalPointList command
+this command clears the nominal point list used for the transformation
+**/
+struct ClearTransformationNominalPointListCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct ClearTransformationNominalPointListRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the ClearTransformationActualPointList command
+this command clears the actual point list used for the transformation
+**/
+struct ClearTransformationActualPointListCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct ClearTransformationActualPointListRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to add points to the point lists for the
+transformation process
+**/
+struct TransformationPointT
+{
+    double dVal1;
+    double dVal2;
+    double dVal3;
+    double dStd1;
+    double dStd2;
+    double dStd3;   
+    double dCovar12;
+    double dCovar13;
+    double dCovar23;   
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the AddTransformationNominalPoint command
+**/
+struct AddTransformationNominalPointCT
+{
+    struct BasicCommandCT       packetInfo;
+    struct TransformationPointT transformationPoint;
+};
+
+struct AddTransformationNominalPointRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the AddTransformationActualPoint command
+**/
+struct AddTransformationActualPointCT
+{
+    struct BasicCommandCT        packetInfo;
+    struct TransformationPointT transformationPoint;
+};
+
+struct AddTransformationActualPointRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the GetTransformedPointss command
+this command starts a transmission, where all records in the 
+transformed point's and residual's
+list will be sent to the caller
+**/
+struct GetTransformedPointsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTransformedPointsRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iTotalPoints;
+    double                dVal1;
+    double                dVal2;
+    double                dVal3;
+    double                dStd1;
+    double                dStd2;
+    double                dStd3;
+    double                dStdTotal;
+    double                dCovar12;
+    double                dCovar13;
+    double                dCovar23;
+    double                dResidualVal1;
+    double                dResidualVal2;
+    double                dResidualVal3;   
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the ClearDrivePointList command
+this command clears the drive point list used for the intermediate compensation
+**/
+struct ClearDrivePointListCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct ClearDrivePointListRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the AddDrivePoint command
+**/
+struct AddDrivePointCT
+{
+    struct BasicCommandCT packetInfo;
+    int                   iInternalReflectorId;
+    double                dVal1;
+    double                dVal2;
+    double                dVal3;
+};
+
+struct AddDrivePointRT
+{
+    struct BasicCommandRT packetInfo;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1687,6 +3091,91 @@ struct GetCameraParamsRT
 {
     struct BasicCommandRT    packetInfo;
     struct CameraParamsDataT cameraParams;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the GetStillImage command
+**/
+struct GetStillImageCT
+{
+    struct BasicCommandCT        packetInfo;
+    enum   ES_StillImageFileType imageFileType;
+};
+
+struct GetStillImageRT
+{
+    struct BasicCommandRT        packetInfo;
+    enum   ES_StillImageFileType imageFiletype;
+    long                         lFileSize;
+    char                         cFileStart;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to check the bird bath position of the 
+currently selected reflector.
+**/
+struct CheckBirdBathCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct CheckBirdBathRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dInitialHzAngle;
+    double                dInitialVtAngle;
+    double                dInitialDistance;
+    double                dHzAngleDiff;
+    double                dVtAngleDiff;
+    double                dDistanceDiff;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read laser tracker diagnostic data
+**/
+struct GetTrackerDiagnosticsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTrackerDiagnosticsRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dTrkPhotoSensorXVal;
+    double                dTrkPhotoSensorYVal;
+    double                dTrkPhotoSensorIVal;
+    double                dRefPhotoSensorXVal;
+    double                dRefPhotoSensorYVal;
+    double                dRefPhotoSensorIVal;
+    double                dADConverterRange;
+    double                dServoControlPointX;
+    double                dServoControlPointY;
+    double                dLaserLightRatio;
+    int                   iLaserControlMode;
+    double                dSensorInsideTemperature;
+    int                   iLCPRunTime;
+    int                   iLaserTubeRunTime;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to get additional ADM diagnostic data
+Only works with the device connected and selected
+**/
+struct GetADMInfoCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetADMInfoRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iFirmwareMajorVersionNumber;
+    int                   iFirmwareMinorVersionNumber;
+    long                  lSerialNumber;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1868,6 +3357,57 @@ struct GetLaserOnTimerRT
 
 /////////////////////////////////////////////////////////////////////////////
 /**
+Use this data type to call the DisplayCoordinateConversion function
+**/
+struct ConvertDisplayCoordinatesCT
+{
+    struct BasicCommandCT                   packetInfo;
+    enum ES_DisplayCoordinateConversionType conversionType; 
+    double                                  dVal1;
+    double                                  dVal2;
+    double                                  dVal3;
+};
+
+struct ConvertDisplayCoordinatesRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dVal1;
+    double                dVal2;
+    double                dVal3;
+};                            
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the active trigger source
+**/
+struct SetTriggerSourceCT
+{
+    struct BasicCommandCT packetInfo;
+    enum ES_TriggerSource triggerSource;
+};
+
+struct SetTriggerSourceRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the active trigger source
+**/
+struct GetTriggerSourceCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTriggerSourceRT
+{
+    struct BasicCommandRT packetInfo;
+    enum ES_TriggerSource triggerSource;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
 Use this data type to read the current laser tracker face information
 **/
 struct GetFaceCT
@@ -1879,6 +3419,441 @@ struct GetFaceRT
 {
     struct BasicCommandRT packetInfo;
     enum ES_TrackerFace   trackerFace;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the cameras known to the system
+**/
+struct GetCamerasCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetCamerasRT
+{
+    struct BasicCommandRT         packetInfo;
+    int                           iTotalCameras;
+    int                           iInternalCameraId;
+    long                          lSerialNumber;
+    enum ES_MeasurementCameraType cameraType;
+    unsigned short                cName[32];       // UNICODE strings
+    unsigned short                cComment[128];
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the current camera
+**/
+struct GetCameraCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetCameraRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iInternalCameraId;
+    ES_BOOL               bMeasurementCameraIsMounted;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the current camera mode
+**/
+struct SetMeasurementCameraModeCT
+{
+    struct BasicCommandCT         packetInfo;
+    enum ES_MeasurementCameraMode cameraMode;
+};
+
+struct SetMeasurementCameraModeRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to set the current camera mode
+**/
+struct GetMeasurementCameraModeCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetMeasurementCameraModeRT
+{
+    struct BasicCommandRT         packetInfo;
+    enum ES_MeasurementCameraMode cameraMode;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the probes known to the system
+**/
+struct GetProbesCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetProbesRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iTotalProbes;
+    int                   iInternalProbeId;
+    long                  lSerialNumber; 
+    enum ES_ProbeType     probeType;
+    int                   iNumberOfFields;         // How many fields (faces) does the probe have
+    unsigned short        cName[32];               // UNICODE strings
+    unsigned short        cComment[128];
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the current camera
+**/
+struct GetProbeCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetProbeRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iInternalProbeId;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the tips known to the system
+**/
+struct GetTipAdaptersCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTipAdaptersRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iTotalTipAdapters;
+    int                   iInternalTipAdapterId;
+    long                  lAssemblyId;
+    long                  lSerialNumberLowPart;
+    long                  lSerialNumberHighPart;
+    enum ES_TipType       tipType;
+    double                dRadius; 
+    double                dLength;
+    unsigned short        cName[32];               // UNICODE strings
+    unsigned short        cComment[128];
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the current tip
+**/
+struct GetTipAdapterCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTipAdapterRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iInternalTipAdapterId;
+    int                   iTipAdapterInterface;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read all the TCam to Tracker compensations  
+currently stored in the systems database
+**/
+struct GetTCamToTrackerCompensationsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTCamToTrackerCompensationsRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iTotalCompensations;
+    int                   iInternalTCamToTrackerCompensationId;
+    int                   iInternalTrackerCompensationId;
+    int                   iInternalCameraId;
+    ES_BOOL               bIsActive;
+    long                  lTrackerSerialNumber;
+    unsigned short        cTCamToTrackerCompensationName[32];  // UNICODE strings
+    unsigned short        cTCamToTrackerCompensationComment[128];
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type activate a TCam to Tracker compensation
+**/
+struct SetTCamToTrackerCompensationCT
+{
+    struct BasicCommandCT packetInfo;
+    int                   iInternalTCamToTrackerCompensationId;
+};
+
+struct SetTCamToTrackerCompensationRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the currently active TCam to Tracker ID
+**/
+struct GetTCamToTrackerCompensationCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTCamToTrackerCompensationRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iInternalTCamToTrackerCompensationId;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read all the Probe compensations  
+currently stored in the systems database
+**/
+struct GetProbeCompensationsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetProbeCompensationsRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iTotalCompensations;
+    int                   iInternalProbeCompensationId;
+    int                   iInternalProbeId;
+    int                   iFieldNumber;
+    ES_BOOL               bIsActive;
+    ES_BOOL               bMarkedForExport;
+    ES_BOOL               bPreliminary;
+    unsigned short        cProbeCompensationName[32];        // UNICODE strings
+    unsigned short        cProbeCompensationComment[128]; 
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the currently active Probe compensation ID
+**/
+struct GetProbeCompensationCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetProbeCompensationRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iInternalProbeCompensationId;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type activate a Probe compensation
+**/
+struct SetProbeCompensationCT
+{
+    struct BasicCommandCT packetInfo;
+    int                   iInternalProbeCompensationId;
+};
+
+struct SetProbeCompensationRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read all the Tip to probe compensations  
+currently stored in the systems database
+**/
+struct GetTipToProbeCompensationsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTipToProbeCompensationsRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iTotalCompensations;
+    int                   iInternalTipToProbeCompensationId;
+    int                   iInternalTipAdapterId;
+    int                   iTipAdapterInterface;
+    int                   iInternalProbeCompensationId;
+    ES_BOOL               bMarkedForExport;
+    unsigned short        cTipToProbeCompensationName[32];   // UNICODE strings
+    unsigned short        cTipToProbeCompensationComment[128];
+};
+
+struct GetTipToProbeCompensations2CT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTipToProbeCompensations2RT
+{
+    struct BasicCommandRT              packetInfo;
+    int                                iTotalCompensations;
+    int                                iInternalTipToProbeCompensationId;
+    int                                iInternalTipAdapterId;
+    int                                iTipAdapterInterface;
+    int                                iInternalProbeCompensationId;
+    ES_BOOL                            bMarkedForExport;
+    enum ES_TipToProbeCompensationType compensationType;
+    unsigned short                     cTipToProbeCompensationName[32];  // UNICODE strings
+    unsigned short                     cTipToProbeCompensationComment[128];
+    unsigned short                     cShankCompensationName[32];
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the currently active TCam to Tracker ID
+**/
+struct GetTipToProbeCompensationCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTipToProbeCompensationRT
+{
+    struct BasicCommandRT packetInfo;
+    int                   iInternalTipToProbeCompensationId;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use thes data types to set the trigger parameters
+**/
+struct ExternTriggerParamsT
+{
+   enum ES_ClockTransition    clockTransition;
+   enum ES_TriggerMode        triggerMode;
+   enum ES_TriggerStartSignal startSignal;
+   long                       lMinimalTimeDelay;
+};
+
+struct SetExternTriggerParamsCT
+{
+    struct BasicCommandCT       packetInfo;
+    struct ExternTriggerParamsT triggerParams;
+};
+
+struct SetExternTriggerParamsRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to read the  trigger parameters
+**/
+struct GetExternTriggerParamsCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetExternTriggerParamsRT
+{
+    struct BasicCommandRT       packetInfo;
+    struct ExternTriggerParamsT triggerParams;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use these data types to calculate the error ellipsoid
+**/
+struct GetErrorEllipsoidCT
+{
+    struct BasicCommandCT packetInfo;
+    double                dCoord1; 
+    double                dCoord2; 
+    double                dCoord3; 
+    double                dStdDev1; 
+    double                dStdDev2; 
+    double                dStdDev3; 
+    double                dCovar12; 
+    double                dCovar13; 
+    double                dCovar23;
+};
+
+struct GetErrorEllipsoidRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dStdDevX; 
+    double                dStdDevY; 
+    double                dStdDevZ; 
+    double                dRotationAngleX; 
+    double                dRotationAngleY; 
+    double                dRotationAngleZ;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to get additional Measurement Camera diagnostic data
+Only works with the device connected and selected
+**/
+struct GetMeasurementCameraInfoCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetMeasurementCameraInfoRT
+{
+    struct BasicCommandRT         packetInfo;
+    int                           iFirmwareMajorVersionNumber;
+    int                           iFirmwareMinorVersionNumber;
+    long                          lSerialNumber;
+    enum ES_MeasurementCameraType cameraType;
+    unsigned short                cName[32];                 // UNICODE strings
+    long                          lCompensationIdNumber;     // identifies the compensation
+    long                          lZoomSerialNumber;
+    long                          lZoomAdjustmentIdNumber;
+    long                          lZoom2DCompensationIdNumber;
+    long                          lZoomProjCenterCompIdNumber;
+    double                        dMaxDistance;
+    double                        dMinDistance;
+    long                          lNrOfPixelsX;
+    long                          lNrOfPixelsY;
+    double                        dPixelSizeX;
+    double                        dPixelSizeY;
+    long                          lMaxDataRate;              // measurements per second
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to get additional Measurement Probe diagnostic data
+Only works with the device connected and selected
+**/
+struct GetMeasurementProbeInfoCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetMeasurementProbeInfoRT
+{
+    struct BasicCommandRT       packetInfo;
+    int                         iFirmwareMajorVersionNumber;
+    int                         iFirmwareMinorVersionNumber;
+    long                        lSerialNumber;
+    enum ES_ProbeType           probeType;
+    long                        lCompensationIdNumber;       // identifies the compensation
+    long                        lActiveField;                // 0...
+    enum ES_ProbeConnectionType connectionType;
+    long                        lNumberOfTipAdapters;        // how many tip adapters
+    enum ES_ProbeButtonType     probeButtonType;
+    long                        lNumberOfFields;             // Number of probes in a probe!
+    ES_BOOL                     bHasWideAngleReceiver;
+    long                        lNumberOfTipDataSets;        // available space for iNumberOfTipDataSets TipDataSets
+    long                        lNumberOfMelodies;           // available sounds on probe
+    long                        lNumberOfLoudnesSteps;       // ZERO -> No sound available
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1918,6 +3893,23 @@ struct GetLongSystemParamRT
 
 /////////////////////////////////////////////////////////////////////////////
 /**
+Use this data type to call the GetCurrentPrismPosition command
+**/
+struct GetCurrentPrismPositionCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetCurrentPrismPositionRT
+{
+    struct BasicCommandRT packetInfo;
+    double                dVal1;
+    double                dVal2;
+    double                dVal3;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
 Use this data type to call the GetObjTemperature command
 **/
 struct GetObjectTemperatureCT
@@ -1944,6 +3936,24 @@ struct ClearCommandQueueCT
 struct ClearCommandQueueRT
 {
     struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the GetTriggerBoardInfo command
+**/
+struct GetTriggerBoardInfoCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetTriggerBoardInfoRT
+{
+    struct BasicCommandRT   packetInfo;
+    enum ES_TriggerCardType triggerCardType;                                    
+    long                    lFPGAVersion;
+    long                    lMaxTriggerFrequency;
+    long                    lErrorCode;            // 0 ==> All OK
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2034,6 +4044,21 @@ struct GoAndMeasureRT
 
 /////////////////////////////////////////////////////////////////////////////
 /**
+Use this data type to activate a "virtual" or "passive" tip
+**/
+struct SetTipAdapterCT
+{
+    struct BasicCommandCT packetInfo;
+    int                   iInternalTipAdapterId;
+};
+
+struct SetTipAdapterRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+/**
 Use this data type to get additional meteo station data
 Only works with the device connected and switched on
 **/
@@ -2056,11 +4081,53 @@ struct GetMeteoStationInfoRT
 Use this data type to get AT4xx sensor information
 Only works with the device connected and switched on
 **/
+
+// 4xx symbols deprecated. Only left for compatibility reasons.
+// For new projecst use GetATInfoCT/RT structures instead.
+
+struct GetATInfoCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct GetATInfoRT
+{
+    struct BasicCommandRT        packetInfo;
+    enum ES_LTSensorType         trackerType;
+    unsigned short               cTrackerName[32]; // UNICODE string
+    long                         lSerialNumber;
+    long                         lMajorFirmwareVersion;
+    long                         lMinorFirmwareVersion;
+    long                         lProcessorBoardFWBuildNumber;
+    long                         lSensorBoardFWBuildNumber;
+    long                         lMajorOSVersion;
+    long                         lMinorOSVersion;
+    long                         lMajorServerSoftwareVersion;
+    long                         lMinorServerSoftwareVersion;
+    long                         lServerSoftwareBuildNumber;
+    enum ES_WLANType             wlanType;
+    enum ES_TPMicroProcessorType xscaleType;
+    long                         lMinMeasureTime;
+    double                       dMinDistance;
+    double                       dMaxDistance;
+    double                       dStdDevDistOffsetADM;
+    double                       dStdDevAngleConst;
+    double                       dStdDevAngleOffset;
+    double                       dStdDevAngleFactor;
+};
+
+
+//typedef struct GetATInfoCT GetAT4xxInfoCT;
+//typedef struct GetATInfoRT GetAT4xxInfoRT;
+
+
+// deprecated - rathter use GetATInfoCT 
 struct GetAT4xxInfoCT
 {
     struct BasicCommandCT packetInfo;
 };
 
+// deprecated - rathter use GetATInfoRT 
 struct GetAT4xxInfoRT
 {
     struct BasicCommandRT        packetInfo;
@@ -2102,6 +4169,21 @@ struct GetSystemSoftwareVersionRT
     unsigned short        cSoftwareVersion[32]; // UNICODE string
 };
 
+/////////////////////////////////////////////////////////////////////////////
+/**
+Use this data type to call the RestoreStartupConditions command
+**/
+struct SystemPowerDownCT
+{
+    struct BasicCommandCT packetInfo;
+};
+
+struct SystemPowerDownRT
+{
+    struct BasicCommandRT packetInfo;
+};
+
+
 #endif /* ES_MCPP_SUPPORT */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2109,6 +4191,10 @@ struct GetSystemSoftwareVersionRT
 #ifdef _WIN32
 // restore old byte alignment from stack
 #pragma pack (pop)
+#elif defined __linux__
+#pragma pack (pop)
+#else
+#error Please insert here directive to restore previous byte alignment for other platforms (Unix, MAC)
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2116,3 +4202,5 @@ struct GetSystemSoftwareVersionRT
 #endif /* ES_API_VERSION_INC_ONLY */
 
 #endif /* ES_C_API_DEF_H */
+
+

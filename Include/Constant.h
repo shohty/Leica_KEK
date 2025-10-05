@@ -1,10 +1,10 @@
-#ifndef ES_CONSTANT_H
-#define ES_CONSTANT_H
+#ifndef COM_LEICA_GEOSYSTEMS_MATH_CONSTANT_H
+#define COM_LEICA_GEOSYSTEMS_MATH_CONSTANT_H
 
 // Other than 'Enum.h', this file 'Constant.h' is not a mandatory include 
 // for ES_C_API_Def.h. It can be included as needed into C++ projects.
 // This file is more of informational nature since it should not be
-// necessary to expliciltyly use these constants. There exist approriate
+// necessary to explicitly use these constants. There exist appropriate
 // conversion functions instead.
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
