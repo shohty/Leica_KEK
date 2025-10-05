@@ -592,9 +592,9 @@ enum ES_SystemStatusChange
     
     
     ES_SSC_InitializationStatusChanged = 151,      
-    ES_SCC_InitializationStatusChanged = ES_SSC_InitializationStatusChanged, 
+    ES_SCC_InitializationStatusChanged = 151, 
     ES_SSC_TiltSensorStatusChanged = 152,          
-    ES_SCC_TiltSensorStatusChanged = ES_SSC_TiltSensorStatusChanged, 
+    ES_SCC_TiltSensorStatusChanged = 152, 
 
 
     
